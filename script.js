@@ -1,31 +1,17 @@
-const audio = document.getElementById("bg-music");
+const eye = document.getElementById('eye');
+const content = document.getElementById('content');
+const numbers = document.getElementById('numbers');
 
-document.addEventListener("click", (e) => {
+// Simulate the eye appearing after a few seconds
+setTimeout(() => {
+  eye.classList.add('open');
+  content.classList.add('open');
+  numbers.classList.add('open');
+}, 5000);
 
-    // Start music once
-    if (audio.paused) {
-        audio.play().catch(() => {});
-    }
-
-    // Create eye
-    const eye = document.createElement("div");
-    eye.className = "click-eye";
-
-    eye.style.left = `${e.clientX}px`;
-    eye.style.top = `${e.clientY}px`;
-
-    document.body.appendChild(eye);
-
-    requestAnimationFrame(() => {
-        eye.classList.add("open");
-    });
-
-    setTimeout(() => {
-        eye.classList.remove("open");
-    }, 600);
-
-    setTimeout(() => {
-        eye.remove();
-    }, 1200);
-
-});
+// Simulate subtle movement
+setInterval(() => {
+  const randomX = Math.random() * 100;
+  const randomY = Math.random() * 100;
+  eye.style.transform = translate(${randomX}px, ${randomY}px) scale(0.5);
+}, 2000);
