@@ -1,54 +1,255 @@
-<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
-<title>weirdinsect</title><style>
-html,body{margin:0;background:#000;color:#fff;font-family:monospace;height:100%;overflow:hidden}
-.screen{display:none;width:100%;height:100%;position:relative}.active{display:block}
-#numbers{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);opacity:0;transition:.5s;font-size:12px}
-.door{position:absolute;opacity:0;transition:.5s;cursor:pointer;font-size:12px}
-#tl{top:8px;left:8px}#tr{top:8px;right:8px}#bl{bottom:8px;left:8px}#br{bottom:8px;right:8px}
-.back{position:absolute;top:8px;left:8px;cursor:pointer}.center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;font-size:12px}
-.eye{position:absolute;color:#fff;font-size:16px}
-button{background:#111;color:#fff;border:1px solid #666;padding:4px 10px;font-family:monospace}
-</style></head><body>
-<div id='main' class='screen active'><div id='numbers'>0x545259</div><div id='tl' class='door'>🚪</div><div id='tr' class='door'>🚪</div><div id='bl' class='door'>🚪</div><div id='br' class='door'>🚪</div></div>
-<div id='p1' class='screen'><div class='back'>← Back</div><div class='center'>📁<br><br>There's nothing to see.<br><br>Try → Top Right</div></div>
-<div id='p2' class='screen'><div class='back'>← Back</div><div class='center'>You're not supposed to be here.<br><br>Try ← Top Left</div></div>
-<div id='p3' class='screen'><div class='back'>← Back</div><div id='eyebox' class='center'>I said...<br><br>Try Top Right.</div></div>
-<div id='p4' class='screen'><div class='back'>← Back</div><div class='center'><button id='t'>Try</button><div id='m'></div><br>Try ↖ Top Left</div></div>
-<audio id='bg' loop><source src='Crystal Castles - Fleece.mp3' type='audio/mpeg'></audio>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>weirdinsect</title>
+
+<style>
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:#000;
+    color:#fff;
+    font-family:monospace;
+    overflow:hidden;
+}
+
+.screen{
+    display:none;
+    width:100%;
+    height:100%;
+    position:relative;
+}
+
+.active{
+    display:block;
+}
+
+#numbers{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    opacity:0;
+    transition:.5s;
+    font-size:12px;
+}
+
+.door{
+    position:absolute;
+    opacity:0;
+    transition:.5s;
+    cursor:pointer;
+    font-size:18px;
+    z-index:10;
+}
+
+#tl{top:20px;left:20px}
+#tr{top:20px;right:20px}
+#bl{bottom:20px;left:20px}
+#br{bottom:20px;right:20px}
+
+.back{
+    position:absolute;
+    top:20px;
+    left:20px;
+    cursor:pointer;
+}
+
+.center{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+}
+
+.eye{
+    position:absolute;
+    font-size:16px;
+}
+
+button{
+    background:#111;
+    color:#fff;
+    border:1px solid #666;
+    padding:5px 15px;
+    font-family:monospace;
+}
+</style>
+</head>
+
+<body>
+
+<div id="main" class="screen active">
+
+<div id="numbers">0x545259</div>
+
+<div id="tl" class="door">🚪</div>
+<div id="tr" class="door">🚪</div>
+<div id="bl" class="door">🚪</div>
+<div id="br" class="door">🚪</div>
+
+</div>
+
+
+<div id="p1" class="screen">
+<div class="back">← Back</div>
+<div class="center">
+📁<br><br>
+There's nothing to see.<br><br>
+Try → Top Right
+</div>
+</div>
+
+
+<div id="p2" class="screen">
+<div class="back">← Back</div>
+<div class="center">
+You're not supposed to be here.<br><br>
+Try ← Top Left
+</div>
+</div>
+
+
+<div id="p3" class="screen">
+<div class="back">← Back</div>
+<div id="eyebox" class="center">
+I said...<br><br>
+Try Top Right.
+</div>
+</div>
+
+
+<div id="p4" class="screen">
+<div class="back">← Back</div>
+<div class="center">
+<button id="try">Try</button>
+<div id="msg"></div>
+<br>
+Try ↖ Top Left
+</div>
+</div>
+
+
+<audio id="bg" loop>
+<source src="Crystal Castles - Fleece.mp3" type="audio/mpeg">
+</audio>
+
+
 <script>
-setTimeout(()=>{numbers.style.opacity=1;document.querySelectorAll('.door').forEach(d=>d.style.opacity=1)},3000);
-document.addEventListener('click',()=>{if(bg.paused)bg.play()},{once:true});
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
-tl.onclick=()=>show('p1');tr.onclick=()=>show('p2');bl.onclick=()=>show('p3');br.onclick=()=>show('p4');
-document.querySelectorAll('.back').forEach(b=>b.onclick=()=>show('main'));
-t.onclick=()=>m.textContent="You've been here before haha.";
-let started=false;
-bl.addEventListener('click',()=>{
- if(started)return;
- started=true;
- let eyes=[];
- let c=0;
- let iv=setInterval(()=>{
-   if(!p3.classList.contains('active')) return;
-   let e=document.createElement('div');
-   e.className='eye';
-   e.textContent='◉';
-   e.style.left=Math.random()*96+'%';
-   e.style.top=Math.random()*96+'%';
-   e.style.color='#fff';
-   p3.appendChild(e);
-   eyes.push(e);
-   if(++c>180) clearInterval(iv);
- },180);
- setTimeout(()=>{
-   setInterval(()=>{
-      let white=eyes.filter(x=>x.style.color!=='rgb(122, 0, 0)' && x.style.color!='#7a0000');
-      for(let i=0;i<2 && white.length;i++){
-        let idx=Math.floor(Math.random()*white.length);
-        white[idx].style.color='#7a0000';
-        white.splice(idx,1);
-      }
-   },700);
- },5000);
+
+const numbers=document.getElementById("numbers");
+const doors=document.querySelectorAll(".door");
+
+setTimeout(()=>{
+    numbers.style.opacity=1;
+    doors.forEach(d=>d.style.opacity=1);
+},3000);
+
+
+document.addEventListener("click",()=>{
+    if(bg.paused) bg.play();
+},{once:true});
+
+
+function show(id){
+    document.querySelectorAll(".screen")
+    .forEach(s=>s.classList.remove("active"));
+
+    document.getElementById(id)
+    .classList.add("active");
+}
+
+
+tl.onclick=()=>show("p1");
+tr.onclick=()=>show("p2");
+bl.onclick=()=>show("p3");
+br.onclick=()=>show("p4");
+
+
+document.querySelectorAll(".back")
+.forEach(b=>{
+    b.onclick=()=>show("main");
 });
-</script></body></html>
+
+
+document.getElementById("try").onclick=()=>{
+    document.getElementById("msg").textContent=
+    "You've been here before haha.";
+};
+
+
+
+let started=false;
+
+bl.onclick=()=>{
+    show("p3");
+
+    if(started)return;
+    started=true;
+
+    let eyes=[];
+    let count=0;
+
+
+    let spawn=setInterval(()=>{
+
+        if(!document.getElementById("p3").classList.contains("active"))
+            return;
+
+
+        let e=document.createElement("div");
+
+        e.className="eye";
+        e.textContent="◉";
+        e.style.left=Math.random()*95+"%";
+        e.style.top=Math.random()*95+"%";
+
+
+        document.getElementById("p3").appendChild(e);
+
+        eyes.push(e);
+
+        count++;
+
+        if(count>=80)
+            clearInterval(spawn);
+
+
+    },1000);
+
+
+
+    setTimeout(()=>{
+
+        setInterval(()=>{
+
+            let white=eyes.filter(
+            e=>e.style.color!=="rgb(122, 0, 0)"
+            );
+
+
+            for(let i=0;i<2 && white.length;i++){
+
+                let r=Math.floor(Math.random()*white.length);
+
+                white[r].style.color="#7a0000";
+
+                white.splice(r,1);
+            }
+
+        },700);
+
+
+    },5000);
+
+};
+
+
+</script>
+
+</body>
+</html>
