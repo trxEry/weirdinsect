@@ -1,17 +1,30 @@
-const eye = document.getElementById('eye');
-const content = document.getElementById('content');
-const numbers = document.getElementById('numbers');
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+}
 
-// Simulate the eye appearing after a few seconds
-setTimeout(() => {
-  eye.classList.add('open');
-  content.classList.add('open');
-  numbers.classList.add('open');
-}, 5000);
+#background,
+#overlay,
+#eye,
+#hallway {
+    position: fixed;
+    inset: 0;
+}
 
-// Simulate subtle movement
-setInterval(() => {
-  const randomX = Math.random() * 100;
-  const randomY = Math.random() * 100;
-  eye.style.transform = `translate(${randomX}px, ${randomY}px) scale(0.5)`;
-}, 2000);
+#content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+#numbers {
+    color: #fff;
+    font-size: 12px;
+    font-family: monospace;
+    text-align: center;
+}
