@@ -11,16 +11,30 @@ html,body{
     width:100%;
     height:100%;
     background:#000;
-    display:flex;
-    justify-content:center;
-    align-items:center;
     overflow:hidden;
+    font-family:monospace;
 }
 
+/* Center text */
+#numbers{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    color:#fff;
+    font-size:12px;
+    opacity:0;
+    transition:opacity .5s;
+    user-select:none;
+}
+
+/* Tiny door in bottom-right corner */
 #door{
+    position:fixed;
+    bottom:12px;
+    right:12px;
     color:#fff;
     font-size:10px;
-    font-family:monospace;
     cursor:pointer;
     opacity:0;
     transition:opacity .5s,transform .2s;
@@ -35,6 +49,8 @@ html,body{
 
 <body>
 
+<div id="numbers">0x545259</div>
+
 <div id="door" onclick="location.href='hidden.html'">🚪</div>
 
 <audio id="bg-music" loop>
@@ -43,6 +59,7 @@ html,body{
 
 <script>
 setTimeout(() => {
+    document.getElementById("numbers").style.opacity = "1";
     document.getElementById("door").style.opacity = "1";
 }, 3000);
 
