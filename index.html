@@ -17,7 +17,7 @@ html,body{
 
 /* Center text */
 #numbers{
-    position:absolute;
+    position:fixed;
     top:50%;
     left:50%;
     transform:translate(-50%,-50%);
@@ -28,25 +28,25 @@ html,body{
     user-select:none;
 }
 
-/* Tiny door in bottom-right corner */
+/* Tiny door in the top-right corner */
 #door{
     position:fixed;
-    bottom:12px;
+    top:12px;
     right:12px;
     color:#fff;
-    font-size:10px;
+    font-size:12px;
     cursor:pointer;
     opacity:0;
-    transition:opacity .5s,transform .2s;
+    transition:opacity .5s, transform .2s;
     user-select:none;
 }
 
 #door:hover{
-    transform:scale(1.2);
+    transform:scale(1.15);
 }
 </style>
-</head>
 
+</head>
 <body>
 
 <div id="numbers">0x545259</div>
