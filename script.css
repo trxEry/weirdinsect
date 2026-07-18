@@ -13,5 +13,5 @@ setTimeout(() => {
 setInterval(() => {
   const randomX = Math.random() * 100;
   const randomY = Math.random() * 100;
-  eye.style.transform = translate(${randomX}px, ${randomY}px) scale(0.5);
+  eye.style.transform = `translate(${randomX}px, ${randomY}px) scale(0.5)`;
 }, 2000);
