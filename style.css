@@ -1,14 +1,84 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #000000;
+  overflow: hidden;
+  height: 100%;
+  cursor: default;
+}
+
+#background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: url('https://i.imgur.com/5kK3g4O.jpg') no-repeat center center;
+  background-size: cover;
+  filter: blur(10px) brightness(0.3) contrast(0.5);
+  z-index: 0;
+}
+
+#overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  z-index: 1;
+  overflow: hidden;
+}
+
+#eye {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  opacity: 0.1;
+  transform: scale(0.5);
+  transition: transform 2s ease-in-out;
+  z-index: 2;
+}
+
+#eye.open {
+  transform: scale(1);
+}
+
+#hallway {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  z-index: 3;
+  opacity: 0.9;
+}
+
 #content {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 9999;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 4;
+  font-family: sans-serif;
+  color: white;
+  font-size: 24px;
+  opacity: 0.1;
+}
+
+#content.open {
+  opacity: 1;
 }
 
 #numbers {
-    color: #fff;
-    font-size: 12px;
-    font-family: monospace;
-    text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  opacity: 0.1;
+  z-index: 5;
+}
+
+#numbers.open {
+  opacity: 1;
 }
