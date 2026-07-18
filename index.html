@@ -19,14 +19,13 @@
 
     #numbers {
       color: #fff;
-      font-family: monospace;
-      font-size: 12px;
+      font: 12px monospace;
       opacity: 0;
       transition: opacity .5s;
+      user-select: none;
     }
   </style>
 </head>
-
 <body>
 
   <div id="numbers">0x545259</div>
@@ -36,10 +35,10 @@
   </audio>
 
   <script>
-    // Show text after 4 seconds
+    // Show text after 3 seconds
     setTimeout(() => {
       document.getElementById("numbers").style.opacity = "1";
-    }, 4000);
+    }, 3000);
 
     // Play music on first click
     document.addEventListener("click", () => {
