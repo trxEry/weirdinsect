@@ -24,7 +24,7 @@ html,body{
 }
 
 .active{
-    display:block !important; /* Force display */
+    display:block !important;
 }
 
 #numbers{
@@ -58,7 +58,6 @@ html,body{
     cursor:pointer;
 }
 
-/* LOCKED TEXT STYLE */
 .center {
     position: absolute;
     left: 50%;
@@ -69,7 +68,7 @@ html,body{
     z-index: 5;
 }
 
-/* THE FIX: Use PRE tag to lock text rendering */
+/* Use PRE tag to keep text stable during typing */
 .center pre {
     margin: 0;
     padding: 0;
@@ -117,7 +116,6 @@ button:hover {
 
 <body>
 
-<!-- MAIN SCREEN FORCED VISIBLE -->
 <div id="main" class="screen active" style="display:block;">
 <div id="numbers">0x545259</div>
 <div id="tl" class="door">🚪</div>
@@ -207,7 +205,6 @@ document.querySelectorAll(".back").forEach(b => {
     b.onclick = () => show("main");
 });
 
-// --- EYE SPAWNING ---
 let started = false;
 function startEyes() {
     show("p3");
@@ -243,7 +240,6 @@ function startEyes() {
     }, 5000);
 }
 
-// --- OBSERVER LOGIC ---
 let qIndex = 0;
 
 const questions = [
@@ -257,25 +253,40 @@ const questions = [
     ["The test is complete.\n\nOPEN\n\nBehind this button is something that was never meant to be found.", "", ""]
 ];
 
-// FIXED: Direct text assignment to PRE tag
-function showText(text, elementId) {
-    const el = document.getElementById(elementId);
-    if(el) {
-        el.textContent = text; // Use textContent for PRE tag
-        el.className = ""; // Reset classes
-    }
+// SLOW TYPING FUNCTION (120ms)
+function typing(text, element) {
+    element.textContent = ""; // Clear first
+    let i = 0;
+    
+    // We will type character by character, but handle newlines carefully
+    let timer = setInterval(() => {
+        if (i < text.length) {
+            let char = text[i];
+            if (char === "\n") {
+                // If it's a newline, add a <br> to the innerHTML instead of text
+                // But since we are in a <pre> tag, we can just add the newline char
+                // and the browser will handle it because of white-space: pre-wrap
+                element.textContent += "\n";
+            } else {
+                element.textContent += char;
+            }
+            i++;
+        } else {
+            clearInterval(timer);
+        }
+    }, 120); // VERY SLOW: 120ms per character
 }
 
 document.getElementById("try").onclick = () => {
     show("observer");
     qIndex = 0;
-    showText("Initializing...\n\nDo not answer quickly.\n\nYour first reaction is the real answer.", "question");
+    typing("Initializing...\n\nDo not answer quickly.\n\nYour first reaction is the real answer.", document.getElementById("question"));
     setTimeout(loadQuestion, 3000);
 };
 
 function loadQuestion() {
     let q = questions[qIndex];
-    showText(q[0], "question");
+    typing(q[0], document.getElementById("question"));
     let box = document.getElementById("answers");
     box.innerHTML = "";
     setTimeout(() => {
@@ -302,7 +313,7 @@ function answer(text) {
         document.body.style.background = "#000";
     }
 
-    showText(text, "question");
+    typing(text, document.getElementById("question"));
 
     setTimeout(() => {
         qIndex++;
