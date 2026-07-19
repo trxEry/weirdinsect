@@ -65,8 +65,9 @@ html,body{
     transform:translate(-50%,-50%);
     text-align:center;
     width: 80%;
-    white-space: pre-wrap; /* Fixes newlines */
+    white-space: pre-wrap; /* Ensures line breaks work */
     line-height: 1.6;
+    font-size: 18px;
 }
 
 .eye{
@@ -88,11 +89,17 @@ button:hover {
     background: #333;
 }
 
-/* Animation for the flash effect */
 @keyframes flash {
     0%{opacity:1}
     50%{opacity:.2}
     100%{opacity:1}
+}
+
+/* Bloody text style */
+.bloody {
+    color: #ff0000 !important;
+    text-shadow: 0 0 10px #ff0000, 0 0 20px #800000;
+    font-weight: bold;
 }
 </style>
 </head>
@@ -100,16 +107,12 @@ button:hover {
 <body>
 
 <div id="main" class="screen active">
-
 <div id="numbers">0x545259</div>
-
 <div id="tl" class="door">🚪</div>
 <div id="tr" class="door">🚪</div>
 <div id="bl" class="door">🚪</div>
 <div id="br" class="door">🚪</div>
-
 </div>
-
 
 <div id="p1" class="screen">
 <div class="back">← Back</div>
@@ -120,7 +123,6 @@ Try → Top Right
 </div>
 </div>
 
-
 <div id="p2" class="screen">
 <div class="back">← Back</div>
 <div class="center">
@@ -129,327 +131,8 @@ Try ← Top Left
 </div>
 </div>
 
-
 <div id="p3" class="screen">
 <div class="back">← Back</div>
 <div id="eyebox" class="center">
 I said...<br><br>
 Try Top Right.
-</div>
-</div>
-
-
-<div id="p4" class="screen">
-<div class="back">← Back</div>
-<div class="center">
-<button id="try">Try</button>
-<div id="msg"></div>
-<br>
-Try ↖ Top Left
-</div>
-</div>
-
-<!-- NEW SCREENS -->
-<div id="observer" class="screen">
-<div class="center">
-<div id="question"></div>
-<br>
-<div id="answers"></div>
-</div>
-</div>
-
-
-<div id="crash" class="screen">
-<div class="center" id="crashText"></div>
-</div>
-
-<!-- FIXED VIDEO NAME AND ATTRIBUTES -->
-<video id="horrorVideo" style="display:none;width:100%;height:100%" autoplay muted playsinline>
-<source src="WEIRDINSECT001.mp4" type="video/mp4">
-</video>
-
-
-<audio id="bg" loop>
-<source src="Crystal Castles - Fleece.mp3" type="audio/mpeg">
-</audio>
-
-
-<script>
-
-const numbers=document.getElementById("numbers");
-const doors=document.querySelectorAll(".door");
-
-setTimeout(()=>{
-    numbers.style.opacity=1;
-    doors.forEach(d=>d.style.opacity=1);
-},3000);
-
-
-document.addEventListener("click",()=>{
-    if(bg.paused) bg.play();
-},{once:true});
-
-
-function show(id){
-    document.querySelectorAll(".screen")
-    .forEach(s=>s.classList.remove("active"));
-
-    document.getElementById(id)
-    .classList.add("active");
-}
-
-
-// Initial door logic
-tl.onclick=()=>show("p1");
-tr.onclick=()=>show("p2");
-bl.onclick=()=>show("p3");
-br.onclick=()=>show("p4");
-
-
-document.querySelectorAll(".back")
-.forEach(b=>{
-    b.onclick=()=>show("main");
-});
-
-
-// --- EYE SPAWNING LOGIC (p3) ---
-let started=false;
-
-bl.onclick=()=>{
-    show("p3");
-
-    if(started)return;
-    started=true;
-
-    let eyes=[];
-    let count=0;
-
-
-    let spawn=setInterval(()=>{
-
-        if(!document.getElementById("p3").classList.contains("active"))
-            return;
-
-
-        let e=document.createElement("div");
-
-        e.className="eye";
-        e.textContent="◉";
-        e.style.left=Math.random()*95+"%";
-        e.style.top=Math.random()*95+"%";
-        e.style.color = "rgb(255, 255, 255)";
-
-
-        document.getElementById("p3").appendChild(e);
-
-        eyes.push(e);
-
-        count++;
-
-        if(count>=80)
-            clearInterval(spawn);
-
-
-    },1000);
-
-
-
-    setTimeout(()=>{
-
-        setInterval(()=>{
-
-            let white=eyes.filter(
-            e=>e.style.color!=="rgb(122, 0, 0)"
-            );
-
-
-            for(let i=0;i<2 && white.length;i++){
-
-                let r=Math.floor(Math.random()*white.length);
-
-                white[r].style.color="#7a0000";
-
-                white.splice(r,1);
-            }
-
-        },700);
-
-
-    },5000);
-
-};
-
-
-// --- OBSERVER / TRY BUTTON LOGIC (p4) ---
-let qIndex=0;
-
-const questions=[
-[
-"Do you remember entering this place?",
-"Then you remember something I don't.",
-"Good. Some things are better forgotten."
-],
-
-[
-"A small light appears in the darkness.\nYou cannot see its source.\nWould you look closer?",
-"You moved toward it.\nMost people do.",
-"You looked away.\nBut it was still there."
-],
-
-[
-"A file appears.\n\nName:\nDO NOT OPEN\n\nWould you open it?",
-"You opened the thing you were warned about.\nThe first mark has appeared.",
-"You left it closed.\nFor now."
-],
-
-[
-"Someone writes:\n\n'I have been waiting.'\n\nWould you reply?",
-"You answered.\nSomething heard you.\nSomething closer.",
-"You stayed silent.\nSomething noticed."
-],
-
-[
-"The website freezes.\n\n'Leave before the last question.'\n\nWould you continue?",
-"You chose to stay.\nThe screen is changing.",
-"You tried to leave.\nBut you already started."
-],
-
-[
-"You see an old picture.\n\nYou don't remember taking it.\n\nWould you look closer?",
-"You searched for an answer.\nThe answer was already looking at you.",
-"You avoided the picture.\nThe picture remained."
-],
-
-[
-"Are you sure you want to know what is hidden here?",
-"Curiosity brought you this far.\nThere is no going back now.",
-"Fear tried to stop you.\nBut the test continued."
-],
-
-[
-"The test is complete.\n\nOPEN\n\nBehind this button is something that was never meant to be found.",
-"",
-""
-]
-];
-
-
-// FIXED TYPING FUNCTION (Slower & Handles newlines)
-function typing(text,element){
-    element.innerHTML = ""; // Use innerHTML for <br>
-    let i = 0;
-    // Replace \n with <br> for proper line breaks
-    let formattedText = text.replace(/\n/g, "<br>");
-    
-    let timer = setInterval(()=>{
-        if(i < formattedText.length){
-            // Check if the next part is a <br> tag
-            if(formattedText.substring(i, i+4) === "<br>"){
-                element.innerHTML += "<br>";
-                i += 4;
-            } else {
-                element.innerHTML += formattedText[i];
-                i++;
-            }
-        } else {
-            clearInterval(timer);
-        }
-    }, 80); // Slower speed (80ms)
-}
-
-document.getElementById("try").onclick=()=>{
-    show("observer");
-    qIndex=0;
-    
-    typing(
-    "Initializing...\n\nDo not answer quickly.\n\nYour first reaction is the real answer.",
-    document.getElementById("question")
-    );
-
-    setTimeout(loadQuestion,3000);
-};
-
-function loadQuestion(){
-    let q=questions[qIndex];
-    typing(q[0],document.getElementById("question"));
-
-    let box=document.getElementById("answers");
-    box.innerHTML="";
-
-    setTimeout(()=>{
-        let yes=document.createElement("button");
-        yes.textContent="YES";
-        yes.onclick=()=>answer(q[1]);
-
-        let no=document.createElement("button");
-        no.textContent="NO";
-        no.onclick=()=>answer(q[2]);
-
-        box.appendChild(yes);
-        box.appendChild(no);
-    },2000);
-}
-
-function answer(text){
-    let box=document.getElementById("answers");
-    box.innerHTML="";
-    typing(text,document.getElementById("question"));
-
-    setTimeout(()=>{
-        qIndex++;
-
-        if(qIndex>=8){
-            finalCrash();
-        }
-        else{
-            if(qIndex==2){
-                document.body.style.animation="flash .2s";
-                setTimeout(() => {
-                    document.body.style.animation = "";
-                }, 200);
-            }
-            loadQuestion();
-        }
-    },2000);
-}
-
-function finalCrash(){
-    show("crash");
-    let c=document.getElementById("crashText");
-
-    c.textContent="[ BLACK ]";
-
-    setTimeout(()=>{
-        c.textContent="[ RED FLASH ]";
-        document.body.style.background="#400";
-    },300);
-
-    setTimeout(()=>{
-        c.textContent="[ GLITCH ]";
-    },600);
-
-    setTimeout(()=>{
-        document.body.style.background="#000";
-        c.textContent="";
-    },1500);
-
-    setTimeout(()=>{
-        let video = document.getElementById("horrorVideo");
-        video.style.display="block";
-        // Try to play. If it fails (because of no interaction), show message
-        video.play().catch(e => {
-            console.log("Video play failed (interaction needed):", e);
-            c.textContent = "CLICK TO PLAY VIDEO";
-            c.style.color = "red";
-            document.getElementById("crash").onclick = () => {
-                video.play();
-                document.getElementById("crash").onclick = null;
-            };
-        });
-    },4500);
-}
-
-</script>
-
-</body>
-</html>
