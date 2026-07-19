@@ -337,7 +337,7 @@ function typing(text,element){
         element.textContent+=text[i];
         i++;
         if(i>=text.length) clearInterval(timer);
-    },60);
+    },40);
 }
 
 document.getElementById("try").onclick=()=>{
@@ -354,7 +354,7 @@ document.getElementById("try").onclick=()=>{
 
 function loadQuestion(){
     let q=questions[qIndex];
-    typing(q[4],document.getElementById("question"));
+    typing(q[0],document.getElementById("question"));
 
     let box=document.getElementById("answers");
     box.innerHTML="";
@@ -401,15 +401,15 @@ function finalCrash(){
     show("crash");
     let c=document.getElementById("crashText");
 
-    c.textContent="[ Try... ]";
+    c.textContent="[ Try? ]";
 
     setTimeout(()=>{
-        c.textContent="[ 0x545259 ]";
+        c.textContent="[ HHHHHHHHHHHH ]";
         document.body.style.background="#400";
     },300);
 
     setTimeout(()=>{
-        c.textContent="[ Try again ... ]";
+        c.textContent="[ TryAgain... ]";
     },600);
 
     setTimeout(()=>{
@@ -418,7 +418,7 @@ function finalCrash(){
     },1500);
 
     setTimeout(()=>{
-        let video = document.getElementById("WEIRDINSECT001.mp4");
+        let video = document.getElementById("horrorVideo");
         video.style.display="block";
         video.play().catch(e => console.log("Video play failed (user interaction needed):", e));
     },4500);
