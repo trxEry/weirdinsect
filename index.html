@@ -68,7 +68,6 @@ html,body{
     z-index: 5;
 }
 
-/* Use PRE tag to keep text stable during typing */
 .center pre {
     margin: 0;
     padding: 0;
@@ -176,182 +175,189 @@ Try Top Right.</pre></div>
 <source src="Crystal Castles - Fleece.mp3" type="audio/mpeg">
 </audio>
 
+<!-- SCRIPT MOVED TO THE END OF BODY -->
 <script>
-const numbers = document.getElementById("numbers");
-const doors = document.querySelectorAll(".door");
-const bg = document.getElementById("bg");
+// Wait for DOM to be ready just in case, though script is at bottom
+document.addEventListener('DOMContentLoaded', () => {
+    const numbers = document.getElementById("numbers");
+    const doors = document.querySelectorAll(".door");
+    const bg = document.getElementById("bg");
 
-setTimeout(() => {
-    numbers.style.opacity = 1;
-    doors.forEach(d => d.style.opacity = 1);
-}, 3000);
-
-document.addEventListener("click", () => {
-    if (bg.paused) bg.play();
-}, { once: true });
-
-function show(id) {
-    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-    const target = document.getElementById(id);
-    if(target) target.classList.add("active");
-}
-
-document.getElementById("tl").onclick = () => show("p1");
-document.getElementById("tr").onclick = () => show("p2");
-document.getElementById("bl").onclick = () => startEyes();
-document.getElementById("br").onclick = () => show("p4");
-
-document.querySelectorAll(".back").forEach(b => {
-    b.onclick = () => show("main");
-});
-
-let started = false;
-function startEyes() {
-    show("p3");
-    if (started) return;
-    started = true;
-    let eyes = [];
-    let count = 0;
-    let spawn = setInterval(() => {
-        if (!document.getElementById("p3").classList.contains("active")) {
-            clearInterval(spawn);
-            return;
-        }
-        let e = document.createElement("div");
-        e.className = "eye";
-        e.textContent = "◉";
-        e.style.left = Math.random() * 95 + "%";
-        e.style.top = Math.random() * 95 + "%";
-        e.style.color = "rgb(255, 255, 255)";
-        document.getElementById("p3").appendChild(e);
-        eyes.push(e);
-        count++;
-        if (count >= 80) clearInterval(spawn);
-    }, 1000);
     setTimeout(() => {
-        setInterval(() => {
-            let white = eyes.filter(e => e.style.color !== "rgb(122, 0, 0)");
-            for (let i = 0; i < 2 && white.length; i++) {
-                let r = Math.floor(Math.random() * white.length);
-                white[r].style.color = "#7a0000";
-                white.splice(r, 1);
-            }
-        }, 700);
-    }, 5000);
-}
+        if(numbers) numbers.style.opacity = 1;
+        if(doors) doors.forEach(d => d.style.opacity = 1);
+    }, 3000);
 
-let qIndex = 0;
+    document.addEventListener("click", () => {
+        if (bg && bg.paused) bg.play();
+    }, { once: true });
 
-const questions = [
-    ["Do you remember entering this place?", "Then you remember something I don't.", "Good. Some things are better forgotten."],
-    ["A small light appears in the darkness.\nYou cannot see its source.\nWould you look closer?", "You moved toward it.\nMost people do.", "You looked away.\nBut it was still there."],
-    ["A file appears.\n\nName:\nDO NOT OPEN\n\nWould you open it?", "You opened the thing you were warned about.\nThe first mark has appeared.", "You left it closed.\nFor now."],
-    ["Someone writes:\n\n'I have been waiting.'\n\nWould you reply?", "You answered.\nSomething heard you.\nSomething closer.", "You stayed silent.\nSomething noticed."],
-    ["The website freezes.\n\n'Leave before the last question.'\n\nWould you continue?", "You chose to stay.\nThe screen is changing.", "You tried to leave.\nBut you already started."],
-    ["You see an old picture.\n\nYou don't remember taking it.\n\nWould you look closer?", "You searched for an answer.\nThe answer was already looking at you.", "You avoided the picture.\nThe picture remained."],
-    ["Are you sure you want to know what is hidden here?", "Curiosity brought you this far.\nThere is no going back now.", "Fear tried to stop you.\nBut the test continued."],
-    ["The test is complete.\n\nOPEN\n\nBehind this button is something that was never meant to be found.", "", ""]
-];
-
-// SLOW TYPING FUNCTION (120ms)
-function typing(text, element) {
-    element.textContent = ""; // Clear first
-    let i = 0;
-    
-    // We will type character by character, but handle newlines carefully
-    let timer = setInterval(() => {
-        if (i < text.length) {
-            let char = text[i];
-            if (char === "\n") {
-                // If it's a newline, add a <br> to the innerHTML instead of text
-                // But since we are in a <pre> tag, we can just add the newline char
-                // and the browser will handle it because of white-space: pre-wrap
-                element.textContent += "\n";
-            } else {
-                element.textContent += char;
-            }
-            i++;
-        } else {
-            clearInterval(timer);
-        }
-    }, 120); // VERY SLOW: 120ms per character
-}
-
-document.getElementById("try").onclick = () => {
-    show("observer");
-    qIndex = 0;
-    typing("Initializing...\n\nDo not answer quickly.\n\nYour first reaction is the real answer.", document.getElementById("question"));
-    setTimeout(loadQuestion, 3000);
-};
-
-function loadQuestion() {
-    let q = questions[qIndex];
-    typing(q[0], document.getElementById("question"));
-    let box = document.getElementById("answers");
-    box.innerHTML = "";
-    setTimeout(() => {
-        let yes = document.createElement("button");
-        yes.textContent = "YES";
-        yes.onclick = () => answer(q[1]);
-        let no = document.createElement("button");
-        no.textContent = "NO";
-        no.onclick = () => answer(q[2]);
-        box.appendChild(yes);
-        box.appendChild(no);
-    }, 2000);
-}
-
-function answer(text) {
-    let box = document.getElementById("answers");
-    box.innerHTML = "";
-
-    if (qIndex === 4) {
-        document.getElementById("question").classList.add("bloody");
-        document.body.style.background = "#100";
-    } else {
-        document.getElementById("question").classList.remove("bloody");
-        document.body.style.background = "#000";
+    function show(id) {
+        document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+        const target = document.getElementById(id);
+        if(target) target.classList.add("active");
     }
 
-    typing(text, document.getElementById("question"));
+    // Door Logic - Now safe because elements exist
+    const tl = document.getElementById("tl");
+    const tr = document.getElementById("tr");
+    const bl = document.getElementById("bl");
+    const br = document.getElementById("br");
 
-    setTimeout(() => {
-        qIndex++;
-        if (qIndex >= 8) {
-            finalCrash();
-        } else {
-            if (qIndex == 2) {
-                document.body.style.animation = "flash .2s";
-                setTimeout(() => { document.body.style.animation = ""; }, 200);
+    if(tl) tl.onclick = () => show("p1");
+    if(tr) tr.onclick = () => show("p2");
+    if(bl) bl.onclick = () => startEyes();
+    if(br) br.onclick = () => show("p4");
+
+    document.querySelectorAll(".back").forEach(b => {
+        b.onclick = () => show("main");
+    });
+
+    let started = false;
+    function startEyes() {
+        show("p3");
+        if (started) return;
+        started = true;
+        let eyes = [];
+        let count = 0;
+        let spawn = setInterval(() => {
+            if (!document.getElementById("p3").classList.contains("active")) {
+                clearInterval(spawn);
+                return;
             }
-            loadQuestion();
-        }
-    }, 2500);
-}
+            let e = document.createElement("div");
+            e.className = "eye";
+            e.textContent = "◉";
+            e.style.left = Math.random() * 95 + "%";
+            e.style.top = Math.random() * 95 + "%";
+            e.style.color = "rgb(255, 255, 255)";
+            document.getElementById("p3").appendChild(e);
+            eyes.push(e);
+            count++;
+            if (count >= 80) clearInterval(spawn);
+        }, 1000);
+        setTimeout(() => {
+            setInterval(() => {
+                let white = eyes.filter(e => e.style.color !== "rgb(122, 0, 0)");
+                for (let i = 0; i < 2 && white.length; i++) {
+                    let r = Math.floor(Math.random() * white.length);
+                    white[r].style.color = "#7a0000";
+                    white.splice(r, 1);
+                }
+            }, 700);
+        }, 5000);
+    }
 
-function finalCrash() {
-    show("crash");
-    let c = document.getElementById("crashText");
-    c.textContent = "[ Try ]";
-    setTimeout(() => {
-        c.textContent = "[ RED FLASH ]";
-        document.body.style.background = "#400";
-    }, 300);
-    setTimeout(() => {
-        c.textContent = "[ Try again... ]";
-    }, 600);
-    setTimeout(() => {
-        document.body.style.background = "#000";
-        c.textContent = "";
-    }, 1500);
-    setTimeout(() => {
-        let video = document.getElementById("horrorVideo");
-        if (video) {
-            video.style.display = "block";
-            video.play().catch(e => console.log("Video play failed:", e));
+    let qIndex = 0;
+
+    const questions = [
+        ["Do you remember entering this place?", "Then you remember something I don't.", "Good. Some things are better forgotten."],
+        ["A small light appears in the darkness.\nYou cannot see its source.\nWould you look closer?", "You moved toward it.\nMost people do.", "You looked away.\nBut it was still there."],
+        ["A file appears.\n\nName:\nDO NOT OPEN\n\nWould you open it?", "You opened the thing you were warned about.\nThe first mark has appeared.", "You left it closed.\nFor now."],
+        ["Someone writes:\n\n'I have been waiting.'\n\nWould you reply?", "You answered.\nSomething heard you.\nSomething closer.", "You stayed silent.\nSomething noticed."],
+        ["The website freezes.\n\n'Leave before the last question.'\n\nWould you continue?", "You chose to stay.\nThe screen is changing.", "You tried to leave.\nBut you already started."],
+        ["You see an old picture.\n\nYou don't remember taking it.\n\nWould you look closer?", "You searched for an answer.\nThe answer was already looking at you.", "You avoided the picture.\nThe picture remained."],
+        ["Are you sure you want to know what is hidden here?", "Curiosity brought you this far.\nThere is no going back now.", "Fear tried to stop you.\nBut the test continued."],
+        ["The test is complete.\n\nOPEN\n\nBehind this button is something that was never meant to be found.", "", ""]
+    ];
+
+    function typing(text, element) {
+        element.textContent = "";
+        let i = 0;
+        let timer = setInterval(() => {
+            if (i < text.length) {
+                let char = text[i];
+                if (char === "\n") {
+                    element.textContent += "\n";
+                } else {
+                    element.textContent += char;
+                }
+                i++;
+            } else {
+                clearInterval(timer);
+            }
+        }, 120);
+    }
+
+    const tryBtn = document.getElementById("try");
+    if(tryBtn) {
+        tryBtn.onclick = () => {
+            show("observer");
+            qIndex = 0;
+            typing("Initializing...\n\nDo not answer quickly.\n\nYour first reaction is the real answer.", document.getElementById("question"));
+            setTimeout(loadQuestion, 3000);
+        };
+    }
+
+    function loadQuestion() {
+        let q = questions[qIndex];
+        typing(q[0], document.getElementById("question"));
+        let box = document.getElementById("answers");
+        box.innerHTML = "";
+        setTimeout(() => {
+            let yes = document.createElement("button");
+            yes.textContent = "YES";
+            yes.onclick = () => answer(q[1]);
+            let no = document.createElement("button");
+            no.textContent = "NO";
+            no.onclick = () => answer(q[2]);
+            box.appendChild(yes);
+            box.appendChild(no);
+        }, 2000);
+    }
+
+    function answer(text) {
+        let box = document.getElementById("answers");
+        box.innerHTML = "";
+
+        if (qIndex === 4) {
+            document.getElementById("question").classList.add("bloody");
+            document.body.style.background = "#100";
+        } else {
+            document.getElementById("question").classList.remove("bloody");
+            document.body.style.background = "#000";
         }
-    }, 4500);
-}
+
+        typing(text, document.getElementById("question"));
+
+        setTimeout(() => {
+            qIndex++;
+            if (qIndex >= 8) {
+                finalCrash();
+            } else {
+                if (qIndex == 2) {
+                    document.body.style.animation = "flash .2s";
+                    setTimeout(() => { document.body.style.animation = ""; }, 200);
+                }
+                loadQuestion();
+            }
+        }, 2500);
+    }
+
+    function finalCrash() {
+        show("crash");
+        let c = document.getElementById("crashText");
+        c.textContent = "[ Try ]";
+        setTimeout(() => {
+            c.textContent = "[ RED FLASH ]";
+            document.body.style.background = "#400";
+        }, 300);
+        setTimeout(() => {
+            c.textContent = "[ Try again... ]";
+        }, 600);
+        setTimeout(() => {
+            document.body.style.background = "#000";
+            c.textContent = "";
+        }, 1500);
+        setTimeout(() => {
+            let video = document.getElementById("horrorVideo");
+            if (video) {
+                video.style.display = "block";
+                video.play().catch(e => console.log("Video play failed:", e));
+            }
+        }, 4500);
+    }
+});
 </script>
 
 </body>
