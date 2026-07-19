@@ -305,25 +305,25 @@ const questions=[
 ],
 
 [
-"The website freezes.\n\n'Leave before the last question.'\n\nWould you continue?",
-"You chose to stay.\nThe screen is changing.",
-"You tried to leave.\nBut you already started."
+"Try.'Leave before the last question.'Would you continue?",
+"You chose to stay. Alright....",
+"You tried to leave. But you already started."
 ],
 
 [
-"You see an old picture.\n\nYou don't remember taking it.\n\nWould you look closer?",
-"You searched for an answer.\nThe answer was already looking at you.",
-"You avoided the picture.\nThe picture remained."
+"You see an old picture.You don't remember taking it. Would you look closer?",
+"You searched for an answer.The answer was already looking at you.",
+"You avoided the picture.The picture remained."
 ],
 
 [
 "Are you sure you want to know what is hidden here?",
-"Curiosity brought you this far.\nThere is no going back now.",
-"Fear tried to stop you.\nBut the test continued."
+"Curiosity brought you this far.There is no going back now.",
+"Fear tried to stop you.But the test continued."
 ],
 
 [
-"The test is complete.\n\nOPEN\n\nBehind this button is something that was never meant to be found.",
+"The test is complete.OPEN Behind this button is something that was never meant to be found.",
 "",
 ""
 ]
@@ -345,7 +345,7 @@ document.getElementById("try").onclick=()=>{
     qIndex=0;
     
     typing(
-    "Initializing...\n\nDo not answer quickly.\n\nYour first reaction is the real answer.",
+    "Initializing...Do not answer quickly.Your first reaction is the real answer.",
     document.getElementById("question")
     );
 
@@ -401,15 +401,15 @@ function finalCrash(){
     show("crash");
     let c=document.getElementById("crashText");
 
-    c.textContent="[ BLACK ]";
+    c.textContent="[ Try ]";
 
     setTimeout(()=>{
-        c.textContent="[ RED FLASH ]";
+        c.textContent="[ HHHHHH ]";
         document.body.style.background="#400";
     },300);
 
     setTimeout(()=>{
-        c.textContent="[ GLITCH ]";
+        c.textContent="[ Try again... ]";
     },600);
 
     setTimeout(()=>{
@@ -418,7 +418,7 @@ function finalCrash(){
     },1500);
 
     setTimeout(()=>{
-        let video = document.getElementById("horrorVideo");
+        let video = document.getElementById("WEIRDINSECT001.mp4");
         video.style.display="block";
         video.play().catch(e => console.log("Video play failed (user interaction needed):", e));
     },4500);
