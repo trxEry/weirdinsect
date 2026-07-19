@@ -64,9 +64,6 @@ html,body{
     top:50%;
     transform:translate(-50%,-50%);
     text-align:center;
-    width: 80%;
-    white-space: pre-wrap; /* Fixes newlines */
-    line-height: 1.6;
 }
 
 .eye{
@@ -149,7 +146,7 @@ Try ↖ Top Left
 </div>
 </div>
 
-<!-- NEW SCREENS -->
+<!-- NEW SCREENS ADDED HERE -->
 <div id="observer" class="screen">
 <div class="center">
 <div id="question"></div>
@@ -163,9 +160,8 @@ Try ↖ Top Left
 <div class="center" id="crashText"></div>
 </div>
 
-<!-- FIXED VIDEO NAME AND ATTRIBUTES -->
-<video id="horrorVideo" style="display:none;width:100%;height:100%" autoplay muted playsinline>
-<source src="WEIRDINSECT001.mp4" type="video/mp4">
+<video id="horrorVideo" style="display:none;width:100%;height:100%" autoplay playsinline>
+<source src="WEIRDINSECT_001.mp4" type="video/mp4">
 </video>
 
 
@@ -237,7 +233,7 @@ bl.onclick=()=>{
         e.textContent="◉";
         e.style.left=Math.random()*95+"%";
         e.style.top=Math.random()*95+"%";
-        e.style.color = "rgb(255, 255, 255)";
+        e.style.color = "rgb(255, 255, 255)"; // Start white
 
 
         document.getElementById("p3").appendChild(e);
@@ -309,15 +305,15 @@ const questions=[
 ],
 
 [
-"The website freezes.\n\n'Leave before the last question.'\n\nWould you continue?",
-"You chose to stay.\nThe screen is changing.",
-"You tried to leave.\nBut you already started."
+"The website freezes.'Leave before the last question.'Would you continue?",
+"You chose to stay.The screen is changing.",
+"You tried to leave.But you already started."
 ],
 
 [
-"You see an old picture.\n\nYou don't remember taking it.\n\nWould you look closer?",
-"You searched for an answer.\nThe answer was already looking at you.",
-"You avoided the picture.\nThe picture remained."
+"You see an old picture. You don't remember taking it.Would you look closer?",
+"You searched for an answer.The answer was already looking at you.",
+"You avoided the picture.The picture remained."
 ],
 
 [
@@ -327,34 +323,21 @@ const questions=[
 ],
 
 [
-"The test is complete.\n\nOPEN\n\nBehind this button is something that was never meant to be found.",
+"The test is complete.OPEN Behind this button is something that was never meant to be found.",
 "",
 ""
 ]
 ];
 
 
-// FIXED TYPING FUNCTION (Slower & Handles newlines)
 function typing(text,element){
-    element.innerHTML = ""; // Use innerHTML for <br>
-    let i = 0;
-    // Replace \n with <br> for proper line breaks
-    let formattedText = text.replace(/\n/g, "<br>");
-    
-    let timer = setInterval(()=>{
-        if(i < formattedText.length){
-            // Check if the next part is a <br> tag
-            if(formattedText.substring(i, i+4) === "<br>"){
-                element.innerHTML += "<br>";
-                i += 4;
-            } else {
-                element.innerHTML += formattedText[i];
-                i++;
-            }
-        } else {
-            clearInterval(timer);
-        }
-    }, 80); // Slower speed (80ms)
+    element.textContent="";
+    let i=0;
+    let timer=setInterval(()=>{
+        element.textContent+=text[i];
+        i++;
+        if(i>=text.length) clearInterval(timer);
+    },40);
 }
 
 document.getElementById("try").onclick=()=>{
@@ -362,7 +345,7 @@ document.getElementById("try").onclick=()=>{
     qIndex=0;
     
     typing(
-    "Initializing...\n\nDo not answer quickly.\n\nYour first reaction is the real answer.",
+    "Initializing...Do not answer quickly.Your first reaction is the real answer.",
     document.getElementById("question")
     );
 
@@ -404,6 +387,7 @@ function answer(text){
         else{
             if(qIndex==2){
                 document.body.style.animation="flash .2s";
+                // Remove animation after it plays so it can be triggered again if needed later
                 setTimeout(() => {
                     document.body.style.animation = "";
                 }, 200);
@@ -417,7 +401,7 @@ function finalCrash(){
     show("crash");
     let c=document.getElementById("crashText");
 
-    c.textContent="[ BLACK ]";
+    c.textContent="[ Try ]";
 
     setTimeout(()=>{
         c.textContent="[ RED FLASH ]";
@@ -425,7 +409,7 @@ function finalCrash(){
     },300);
 
     setTimeout(()=>{
-        c.textContent="[ GLITCH ]";
+        c.textContent="[ Try again... ]";
     },600);
 
     setTimeout(()=>{
@@ -434,18 +418,9 @@ function finalCrash(){
     },1500);
 
     setTimeout(()=>{
-        let video = document.getElementById("horrorVideo");
+        let video = document.getElementById("WEIRDINSECT001.mp4");
         video.style.display="block";
-        // Try to play. If it fails (because of no interaction), show message
-        video.play().catch(e => {
-            console.log("Video play failed (interaction needed):", e);
-            c.textContent = "CLICK TO PLAY VIDEO";
-            c.style.color = "red";
-            document.getElementById("crash").onclick = () => {
-                video.play();
-                document.getElementById("crash").onclick = null;
-            };
-        });
+        video.play().catch(e => console.log("Video play failed (user interaction needed):", e));
     },4500);
 }
 
