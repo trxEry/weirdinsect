@@ -6,107 +6,79 @@
 <title>weirdinsect</title>
 
 <style>
-html,body{
-    margin:0;
-    width:100%;
-    height:100%;
-    background:#000;
-    color:#fff;
-    font-family:monospace;
-    overflow:hidden;
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    color: #fff;
+    font-family: monospace;
+    overflow: hidden;
+    user-select: none;
 }
 
-.screen{
-    display:none;
-    width:100%;
-    height:100%;
-    position:relative;
+/* Force screens to be hidden by default */
+.screen {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: relative;
 }
 
-.active{
-    display:block;
+/* Force active screens to be visible */
+.active {
+    display: block !important;
 }
 
-#numbers{
-    position:absolute;
-    left:50%;
-    top:50%;
-    transform:translate(-50%,-50%);
-    opacity:0;
-    transition:.5s;
-    font-size:12px;
+#numbers {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: 0.5s;
+    font-size: 12px;
 }
 
-.door{
-    position:absolute;
-    opacity:0;
-    transition:.5s;
-    cursor:pointer;
-    font-size:18px;
-    z-index:10;
+.door {
+    position: absolute;
+    opacity: 0;
+    transition: 0.5s;
+    cursor: pointer;
+    font-size: 18px;
+    z-index: 10;
 }
 
-#tl{top:20px;left:20px}
-#tr{top:20px;right:20px}
-#bl{bottom:20px;left:20px}
-#br{bottom:20px;right:20px}
+#tl { top: 20px; left: 20px; }
+#tr { top: 20px; right: 20px; }
+#bl { bottom: 20px; left: 20px; }
+#br { bottom: 20px; right: 20px; }
 
-.back{
-    position:absolute;
-    top:20px;
-    left:20px;
-    cursor:pointer;
+.back {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    cursor: pointer;
 }
 
-.center{
-    position:absolute;
-    left:50%;
-    top:50%;
-    transform:translate(-50%,-50%);
-    text-align:center;
+.center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
     width: 80%;
     white-space: pre-wrap;
     line-height: 1.6;
     font-size: 18px;
 }
 
-.eye{
-    position:absolute;
-    font-size:16px;
+.eye {
+    position: absolute;
+    font-size: 16px;
 }
 
-button{
-    background:#111;
-    color:#fff;
-    border:1px solid #666;
-    padding:5px 15px;
-    font-family:monospace;
-    margin: 5px;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #333;
-}
-
-@keyframes flash {
-    0%{opacity:1}
-    50%{opacity:.2}
-    100%{opacity:1}
-}
-
-.bloody {
-    color: #ff0000 !important;
-    text-shadow: 0 0 10px #ff0000, 0 0 20px #800000;
-    font-weight: bold;
-}
-</style>
-</head>
-
-<body>
-
-<div id="main" class="screen active">
-<div id="numbers">0x545259</div>
-<div id="tl" class="door">🚪</div>
-<div id="tr" class="door">🚪</div>
-<div
+button {
+    background: #111;
+    color: #fff;
+   
