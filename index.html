@@ -14,6 +14,7 @@ html,body{
     color:#fff;
     font-family:monospace;
     overflow:hidden;
+    user-select: none;
 }
 
 .screen{
@@ -64,6 +65,7 @@ html,body{
     top:50%;
     transform:translate(-50%,-50%);
     text-align:center;
+    width: 80%;
 }
 
 .eye{
@@ -79,23 +81,53 @@ button{
     font-family:monospace;
     margin: 5px;
     cursor: pointer;
+    font-size: 14px;
 }
 
 button:hover {
     background: #333;
+    border-color: #fff;
 }
 
-/* Animation for the flash effect */
+/* Animations */
 @keyframes flash {
     0%{opacity:1}
     50%{opacity:.2}
     100%{opacity:1}
 }
 
-/* Bloody text style */
+@keyframes strobe {
+    0% { background: #000; color: #fff; }
+    50% { background: #fff; color: #000; }
+    100% { background: #000; color: #fff; }
+}
+
+@keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(3px, 1px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
 .bloody {
     color: #ff0000 !important;
-    text-shadow: 0 0 5px #ff0000;
+    text-shadow: 0 0 10px #ff0000, 0 0 20px #800000;
+    font-weight: bold;
+}
+
+.strobe-active {
+    animation: strobe 0.1s infinite;
+}
+
+.shake-active {
+    animation: shake 0.2s infinite;
 }
 </style>
 </head>
@@ -103,16 +135,12 @@ button:hover {
 <body>
 
 <div id="main" class="screen active">
-
 <div id="numbers">0x545259</div>
-
 <div id="tl" class="door">🚪</div>
 <div id="tr" class="door">🚪</div>
 <div id="bl" class="door">🚪</div>
 <div id="br" class="door">🚪</div>
-
 </div>
-
 
 <div id="p1" class="screen">
 <div class="back">← Back</div>
@@ -123,7 +151,6 @@ Try → Top Right
 </div>
 </div>
 
-
 <div id="p2" class="screen">
 <div class="back">← Back</div>
 <div class="center">
@@ -132,7 +159,6 @@ Try ← Top Left
 </div>
 </div>
 
-
 <div id="p3" class="screen">
 <div class="back">← Back</div>
 <div id="eyebox" class="center">
@@ -140,7 +166,6 @@ I said...<br><br>
 Try Top Right.
 </div>
 </div>
-
 
 <div id="p4" class="screen">
 <div class="back">← Back</div>
@@ -152,7 +177,6 @@ Try ↖ Top Left
 </div>
 </div>
 
-<!-- NEW SCREENS ADDED HERE -->
 <div id="observer" class="screen">
 <div class="center">
 <div id="question"></div>
@@ -161,24 +185,19 @@ Try ↖ Top Left
 </div>
 </div>
 
-
 <div id="crash" class="screen">
 <div class="center" id="crashText"></div>
 </div>
 
-<!-- FIXED VIDEO NAME AND ATTRIBUTES -->
 <video id="horrorVideo" style="display:none;width:100%;height:100%" autoplay muted playsinline>
 <source src="WEIRDINSECT001.mp4" type="video/mp4">
 </video>
-
 
 <audio id="bg" loop>
 <source src="Crystal Castles - Fleece.mp3" type="audio/mpeg">
 </audio>
 
-
 <script>
-
 const numbers=document.getElementById("numbers");
 const doors=document.querySelectorAll(".door");
 
@@ -187,67 +206,46 @@ setTimeout(()=>{
     doors.forEach(d=>d.style.opacity=1);
 },3000);
 
-
 document.addEventListener("click",()=>{
     if(bg.paused) bg.play();
 },{once:true});
 
-
 function show(id){
-    document.querySelectorAll(".screen")
-    .forEach(s=>s.classList.remove("active"));
-
-    document.getElementById(id)
-    .classList.add("active");
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
 }
 
-
-// Initial door logic
+// Door logic
 tl.onclick=()=>show("p1");
 tr.onclick=()=>show("p2");
 bl.onclick=()=>show("p3");
 br.onclick=()=>show("p4");
 
-
-document.querySelectorAll(".back")
-.forEach(b=>{
+document.querySelectorAll(".back").forEach(b=>{
     b.onclick=()=>show("main");
 });
 
-
-// --- EYE SPAWNING LOGIC (p3) ---
+// --- EYE SPAWNING (p3) ---
 let started=false;
-
 bl.onclick=()=>{
     show("p3");
-
     if(started)return;
     started=true;
-
     let eyes=[];
     let count=0;
-
     let spawn=setInterval(()=>{
-
-        if(!document.getElementById("p3").classList.contains("active"))
-            return;
-
+        if(!document.getElementById("p3").classList.contains("active")) return;
         let e=document.createElement("div");
         e.className="eye";
         e.textContent="◉";
         e.style.left=Math.random()*95+"%";
         e.style.top=Math.random()*95+"%";
-        e.style.color = "rgb(255, 255, 255)";
-
+        e.style.color="rgb(255, 255, 255)";
         document.getElementById("p3").appendChild(e);
         eyes.push(e);
         count++;
-
-        if(count>=80)
-            clearInterval(spawn);
-
+        if(count>=80) clearInterval(spawn);
     },1000);
-
     setTimeout(()=>{
         setInterval(()=>{
             let white=eyes.filter(e=>e.style.color!=="rgb(122, 0, 0)");
@@ -260,53 +258,46 @@ bl.onclick=()=>{
     },5000);
 };
 
-
-// --- OBSERVER / TRY BUTTON LOGIC (p4) ---
+// --- OBSERVER LOGIC ---
 let qIndex=0;
 
+// Cleaned up questions
 const questions=[
 [
 "Do you remember entering this place?",
 "Then you remember something I don't.",
 "Good. Some things are better forgotten."
 ],
-
 [
 "A small light appears in the darkness.\nYou cannot see its source.\nWould you look closer?",
 "You moved toward it.\nMost people do.",
 "You looked away.\nBut it was still there."
 ],
-
 [
 "A file appears.\n\nName:\nDO NOT OPEN\n\nWould you open it?",
 "You opened the thing you were warned about.\nThe first mark has appeared.",
 "You left it closed.\nFor now."
 ],
-
 [
 "Someone writes:\n\n'I have been waiting.'\n\nWould you reply?",
 "You answered.\nSomething heard you.\nSomething closer.",
 "You stayed silent.\nSomething noticed."
 ],
-
 [
-"The website freezes.\n\n'Leave before the last question.'\n\nWould you continue?",
+"Leave before the last question.\n\nWould you continue?",
 "You chose to stay.\nThe screen is changing.",
 "You tried to leave.\nBut you already started."
 ],
-
 [
 "You see an old picture.\n\nYou don't remember taking it.\n\nWould you look closer?",
 "You searched for an answer.\nThe answer was already looking at you.",
 "You avoided the picture.\nThe picture remained."
 ],
-
 [
 "Are you sure you want to know what is hidden here?",
 "Curiosity brought you this far.\nThere is no going back now.",
 "Fear tried to stop you.\nBut the test continued."
 ],
-
 [
 "The test is complete.\n\nOPEN\n\nBehind this button is something that was never meant to be found.",
 "",
@@ -314,12 +305,11 @@ const questions=[
 ]
 ];
 
-// FIXED TYPING FUNCTION
+// Slower typing (80ms)
 function typing(text, element){
-    element.innerHTML = ""; 
-    element.className = "center"; // Reset classes
+    element.innerHTML = "";
+    element.className = "center"; // Reset
     let i = 0;
-    
     let timer = setInterval(() => {
         if (i < text.length) {
             let char = text[i];
@@ -332,101 +322,98 @@ function typing(text, element){
         } else {
             clearInterval(timer);
         }
-    }, 50);
+    }, 80); // Slower speed
 }
 
 document.getElementById("try").onclick=()=>{
     show("observer");
     qIndex=0;
-
-    typing(
-    "Initializing...\n\nDo not answer quickly.\n\nYour first reaction is the real answer.",
-    document.getElementById("question")
-    );
-
-    setTimeout(loadQuestion,3000);
+    typing("Initializing...\n\nDo not answer quickly.\n\nYour first reaction is the real answer.", document.getElementById("question"));
+    setTimeout(loadQuestion, 3000);
 };
 
 function loadQuestion(){
     let q=questions[qIndex];
     typing(q[0], document.getElementById("question"));
-
     let box=document.getElementById("answers");
     box.innerHTML="";
-
     setTimeout(()=>{
         let yes=document.createElement("button");
         yes.textContent="YES";
         yes.onclick=()=>answer(q[1]);
-
         let no=document.createElement("button");
         no.textContent="NO";
         no.onclick=()=>answer(q[2]);
-
         box.appendChild(yes);
         box.appendChild(no);
-    },2000);
+    }, 2000);
 }
 
 function answer(text){
     let box=document.getElementById("answers");
     box.innerHTML="";
     
-    // Check if this is question 5 (index 4) to make it bloody
+    // Blooody effect on Q5 (index 4)
     if (qIndex === 4) {
         document.getElementById("question").classList.add("bloody");
-        document.body.style.background = "#100"; // Slight red tint
+        document.body.style.background = "#100";
     }
 
     typing(text, document.getElementById("question"));
 
     setTimeout(()=>{
         qIndex++;
-
         if(qIndex>=8){
             finalCrash();
-        }
-        else{
+        } else {
             if(qIndex==2){
                 document.body.style.animation="flash .2s";
                 setTimeout(() => { document.body.style.animation = ""; }, 200);
             }
             loadQuestion();
         }
-    },2000);
+    }, 2000);
 }
 
 function finalCrash(){
     show("crash");
     let c=document.getElementById("crashText");
-
-    // Removed "BLACK" and "GLITCH" text
-    // Just flash red and go black
     
-    c.textContent = ""; 
-    document.body.style.background = "#400"; // Red flash
+    // Rapid strobe and shake effect
+    document.body.classList.add("strobe-active");
+    document.body.classList.add("shake-active");
+    
+    c.textContent = "OPEN";
+    c.style.color = "#ff0000";
+    c.style.fontSize = "30px";
+    c.classList.add("bloody");
 
-    setTimeout(()=>{
-        document.body.style.background="#000";
-    },500);
-
-    setTimeout(()=>{
-        let video = document.getElementById("horrorVideo");
-        video.style.display="block";
-        // Attempt to play
-        video.play().catch(e => {
-            console.log("Video play failed (interaction needed):", e);
-            // Optional: Show a message to click video
-            c.textContent = "CLICK VIDEO TO PLAY";
-            c.style.color = "red";
-            document.getElementById("crash").onclick = () => {
-                video.play();
-                document.getElementById("crash").onclick = null;
-            };
-        });
-    },1000);
+    let flashCount = 0;
+    let flashInt = setInterval(() => {
+        flashCount++;
+        if(flashCount > 15) {
+            clearInterval(flashInt);
+            document.body.classList.remove("strobe-active");
+            document.body.classList.remove("shake-active");
+            document.body.style.background = "#000";
+            c.textContent = "";
+            
+            // Start video
+            setTimeout(()=>{
+                let video = document.getElementById("horrorVideo");
+                video.style.display="block";
+                video.play().catch(e => {
+                    c.textContent = "CLICK TO PLAY";
+                    c.style.color = "red";
+                    document.getElementById("crash").onclick = () => {
+                        video.play();
+                        document.getElementById("crash").onclick = null;
+                    };
+                });
+            }, 500);
+        }
+    }, 100); // Fast flash
 }
-
 </script>
 
 </body>
