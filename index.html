@@ -57,6 +57,7 @@ html,body{
     top:20px;
     left:20px;
     cursor:pointer;
+    color: #888;
 }
 
 .center{
@@ -76,10 +77,11 @@ button{
     background:#111;
     color:#fff;
     border:1px solid #666;
-    padding:5px 15px;
+    padding:10px 20px;
     font-family:monospace;
     margin: 5px;
     cursor: pointer;
+    font-size: 16px;
 }
 
 button:hover {
@@ -129,450 +131,314 @@ button:disabled {
 <body>
 
 <div id="main" class="screen active">
-
-<div id="numbers">0x545259</div>
-
-<div id="tl" class="door">🚪</div>
-<div id="tr" class="door">🚪</div>
-<div id="bl" class="door">🚪</div>
-<div id="br" class="door">🚪</div>
-
+    <div id="numbers">0x545259</div>
+    <div id="tl" class="door">🚪</div>
+    <div id="tr" class="door">🚪</div>
+    <div id="bl" class="door">🚪</div>
+    <div id="br" class="door">🚪</div>
 </div>
-
 
 <div id="p1" class="screen">
-<div class="back">← Back</div>
-<div class="center">
-📁<br><br>
-There's nothing to see.<br><br>
-Try → Top Right
+    <div class="back">← Back</div>
+    <div class="center">
+        📁<br><br>
+        There's nothing to see.<br><br>
+        Try → Top Right
+    </div>
 </div>
-</div>
-
 
 <div id="p2" class="screen">
-<div class="back">← Back</div>
-<div class="center">
-You're not supposed to be here.<br><br>
-Try ← Top Left
+    <div class="back">← Back</div>
+    <div class="center">
+        You're not supposed to be here.<br><br>
+        Try ← Top Left
+    </div>
 </div>
-</div>
-
 
 <div id="p3" class="screen">
-<div class="back">← Back</div>
-<div id="eyebox" class="center">
-I said...<br><br>
-Try Top Right.
-</div>
-</div>
-
-
-<!-- THE GAME SCREEN (Replaces p4) -->
-<div id="p4" class="screen">
-<div class="back">← Back</div>
-<div class="center">
-    <div id="gameStatus" class="game-text"></div>
-    <div id="gameResult" class="game-result"></div>
-    
-    <div id="gameControls">
-        <button class="rps-btn" data-choice="rock">✊ Rock</button>
-        <button class="rps-btn" data-choice="paper">✋ Paper</button>
-        <button class="rps-btn" data-choice="scissors">✌ Scissors</button>
+    <div class="back">← Back</div>
+    <div id="eyebox" class="center">
+        I said...<br><br>
+        Try Top Right.
     </div>
-    
-    <div id="gameMessage" class="game-msg"></div>
-</div>
 </div>
 
+<!-- THE GAME SCREEN -->
+<div id="p4" class="screen">
+    <div class="back">← Back</div>
+    <div class="center">
+        <!-- The Start Button -->
+        <button id="startTryBtn">Try</button>
+        
+        <!-- Dynamic Content Area -->
+        <div id="gameArea" style="display:none; margin-top:20px;">
+            <div id="gameStatus" class="game-text"></div>
+            <div id="gameResult" class="game-result"></div>
+            <div id="gameControls">
+                <button class="rps-btn" data-choice="rock">✊ Rock</button>
+                <button class="rps-btn" data-choice="paper">✋ Paper</button>
+                <button class="rps-btn" data-choice="scissors">✌ Scissors</button>
+            </div>
+            <div id="gameMessage" class="game-msg"></div>
+        </div>
+    </div>
+</div>
 
 <div id="crash" class="screen">
-<div class="center" id="crashText"></div>
+    <div class="center" id="crashText"></div>
 </div>
 
 <video id="horrorVideo" style="display:none;width:100%;height:100%" autoplay playsinline loop>
-<source src="WEIRDINSECT001.mp4" type="video/mp4">
+    <source src="WEIRDINSECT001.mp4" type="video/mp4">
 </video>
 
-
 <audio id="bg" loop>
-<source src="Crystal Castles - Fleece.mp3" type="audio/mpeg">
+    <source src="Crystal Castles - Fleece.mp3" type="audio/mpeg">
 </audio>
 
-
 <script>
-
-const numbers=document.getElementById("numbers");
-const doors=document.querySelectorAll(".door");
+const numbers = document.getElementById("numbers");
+const doors = document.querySelectorAll(".door");
+const bg = document.getElementById("bg");
 
 setTimeout(()=>{
-    numbers.style.opacity=1;
-    doors.forEach(d=>d.style.opacity=1);
-},3000);
+    numbers.style.opacity = 1;
+    doors.forEach(d => d.style.opacity = 1);
+}, 3000);
 
+document.addEventListener("click", () => {
+    if (bg.paused) bg.play().catch(e => console.log("Audio blocked:", e));
+}, {once: true});
 
-document.addEventListener("click",()=>{
-    if(bg.paused) bg.play().catch(e=>console.log(e));
-},{once:true});
-
-
-function show(id){
-    document.querySelectorAll(".screen")
-    .forEach(s=>s.classList.remove("active"));
-
-    document.getElementById(id)
-    .classList.add("active");
+function show(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
 }
 
-
 // Initial door logic
-tl.onclick=()=>show("p1");
-tr.onclick=()=>show("p2");
-bl.onclick=()=>show("p3");
-br.onclick=()=>show("p4");
+tl.onclick = () => show("p1");
+tr.onclick = () => show("p4"); // Go to game screen
+bl.onclick = () => show("p3");
+br.onclick = () => show("p2");
 
-
-document.querySelectorAll(".back")
-.forEach(b=>{
-    b.onclick=()=>show("main");
+document.querySelectorAll(".back").forEach(b => {
+    b.onclick = () => show("main");
 });
 
-
 // --- EYE SPAWNING LOGIC (p3) ---
-let started=false;
-
-bl.onclick=()=>{
+let started = false;
+bl.onclick = () => {
     show("p3");
+    if (started) return;
+    started = true;
 
-    if(started)return;
-    started=true;
-
-    let eyes=[];
-    let count=0;
-
-    let spawn=setInterval(()=>{
-
-        if(!document.getElementById("p3").classList.contains("active"))
-            return;
-
-        let e=document.createElement("div");
-
-        e.className="eye";
-        e.textContent="◉";
-        e.style.left=Math.random()*95+"%";
-        e.style.top=Math.random()*95+"%";
+    let eyes = [];
+    let count = 0;
+    let spawn = setInterval(() => {
+        if (!document.getElementById("p3").classList.contains("active")) return;
+        let e = document.createElement("div");
+        e.className = "eye";
+        e.textContent = "◉";
+        e.style.left = Math.random() * 95 + "%";
+        e.style.top = Math.random() * 95 + "%";
         e.style.color = "rgb(255, 255, 255)";
-
         document.getElementById("p3").appendChild(e);
-
         eyes.push(e);
-
         count++;
+        if (count >= 80) clearInterval(spawn);
+    }, 1000);
 
-        if(count>=80)
-            clearInterval(spawn);
-
-    },1000);
-
-    setTimeout(()=>{
-
-        setInterval(()=>{
-
-            let white=eyes.filter(
-            e=>e.style.color!=="rgb(122, 0, 0)"
-            );
-
-            for(let i=0;i<2 && white.length;i++){
-
-                let r=Math.floor(Math.random()*white.length);
-
-                white[r].style.color="#7a0000";
-
-                white.splice(r,1);
+    setTimeout(() => {
+        setInterval(() => {
+            let white = eyes.filter(e => e.style.color !== "rgb(122, 0, 0)");
+            for (let i = 0; i < 2 && white.length; i++) {
+                let r = Math.floor(Math.random() * white.length);
+                white[r].style.color = "#7a0000";
+                white.splice(r, 1);
             }
-
-        },700);
-
-    },5000);
+        }, 700);
+    }, 5000);
 };
 
+// --- SEQUENCE LOGIC ---
 
-// --- OBSERVER / TRY BUTTON LOGIC (p4) ---
-// This runs first, then leads into the game
-let qIndex=0;
-let gameStarted=false;
-let gameRound=0;
-
-const questions=[
-[
-"Do you remember entering this place?",
-"Then you remember something I don't.",
-"Good. Some things are better forgotten."
-],
-
-[
-"A small light appears in the darkness.\nYou cannot see its source.\nWould you look closer?",
-"You moved toward it.\nMost people do.",
-"You looked away.\nBut it was still there."
-],
-
-[
-"A file appears.\n\nName:\nDO NOT OPEN\n\nWould you open it?",
-"You opened the thing you were warned about.\nThe first mark has appeared.",
-"You left it closed.\nFor now."
-],
-
-[
-"Someone writes:\n\n'I have been waiting.'\n\nWould you reply?",
-"You answered.\nSomething heard you.\nSomething closer.",
-"You stayed silent.\nSomething noticed."
-],
-
-[
-"The website freezes.\n\n'Leave before the last question.'\n\nWould you continue?",
-"You chose to stay.\nThe screen is changing.",
-"You tried to leave.\nBut you already started."
-],
-
-[
-"You see an old picture.\n\nYou don't remember taking it.\n\nWould you look closer?",
-"You searched for an answer.\nThe answer was already looking at you.",
-"You avoided the picture.\nThe picture remained."
-],
-
-[
-"Are you sure you want to know what is hidden here?",
-"Curiosity brought you this far.\nThere is no going back now.",
-"Fear tried to stop you.\nBut the test continued."
-],
-
-[
-"The test is complete.\n\nOPEN\n\nBehind this button is something that was never meant to be found.",
-"",
-""
-]
+// 1. Questions Data
+const questions = [
+    ["Do you remember entering this place?", "Then you remember something I don't.", "Good. Some things are better forgotten."],
+    ["A small light appears in the darkness.\nYou cannot see its source.\nWould you look closer?", "You moved toward it.\nMost people do.", "You looked away.\nBut it was still there."],
+    ["A file appears.\n\nName:\nDO NOT OPEN\n\nWould you open it?", "You opened the thing you were warned about.\nThe first mark has appeared.", "You left it closed.\nFor now."],
+    ["Someone writes:\n\n'I have been waiting.'\n\nWould you reply?", "You answered.\nSomething heard you.\nSomething closer.", "You stayed silent.\nSomething noticed."],
+    ["The website freezes.\n\n'Leave before the last question.'\n\nWould you continue?", "You chose to stay.\nThe screen is changing.", "You tried to leave.\nBut you already started."],
+    ["You see an old picture.\n\nYou don't remember taking it.\n\nWould you look closer?", "You searched for an answer.\nThe answer was already looking at you.", "You avoided the picture.\nThe picture remained."],
+    ["Are you sure you want to know what is hidden here?", "Curiosity brought you this far.\nThere is no going back now.", "Fear tried to stop you.\nBut the test continued."],
+    ["The test is complete.\n\nOPEN\n\nBehind this button is something that was never meant to be found.", "", ""]
 ];
 
-const typingTimerTimer = document.getElementById("try") ? document.getElementById("try") : null;
+let qIndex = 0;
+let typingTimer;
+let gamePhase = false; // false = questions, true = game
 
-// We will replace the old "Try" button logic with this new combined flow
-// Find the button in p4 (we'll create it dynamically or reuse if it exists)
-// Since we removed the button in the HTML for p4, let's add it dynamically or use the first click
-
+const startBtn = document.getElementById("startTryBtn");
+const gameArea = document.getElementById("gameArea");
 const gameStatus = document.getElementById("gameStatus");
 const gameResult = document.getElementById("gameResult");
 const gameControls = document.getElementById("gameControls");
 const gameMessage = document.getElementById("gameMessage");
 const rpsButtons = document.querySelectorAll(".rps-btn");
 
-let typingTimer;
-
-function typing(text,element,speed=45,done){
+// Typing effect function
+function typing(text, element, speed = 30, done) {
     clearInterval(typingTimer);
-    element.textContent="";
-    let i=0;
-    typingTimer=setInterval(()=>{
-        if(i>=text.length){
+    element.textContent = "";
+    let i = 0;
+    typingTimer = setInterval(() => {
+        if (i >= text.length) {
             clearInterval(typingTimer);
-            if(done) done();
+            if (done) done();
             return;
         }
-        element.textContent+=text.charAt(i);
+        element.textContent += text.charAt(i);
         i++;
-    },speed);
+    }, speed);
 }
 
-// --- START GAME LOGIC (Replaces the old try button) ---
-// We'll add a "Start" button or just make the first click start it
-// Let's add a "Try" button dynamically if it doesn't exist, or just use the first click on the screen
-// Actually, let's just make the first click on the game screen start the questions
+// START BUTTON CLICK
+startBtn.onclick = () => {
+    startBtn.style.display = "none";
+    gameArea.style.display = "block";
+    gamePhase = false; // Start with questions
+    qIndex = 0;
+    loadQuestion();
+};
 
-gameStatus.textContent = "Initializing...\n\nDo not answer quickly.\n\nYour first reaction is the real answer.";
-
-function loadQuestion(){
-    let q=questions[qIndex];
-    typing(q[0],document.getElementById("gameStatus"));
-
-    let box=document.getElementById("answers") || document.createElement("div");
-    
-    // Create answer buttons container if it doesn't exist
-    if(!box.id) {
-        box.id = "answers";
-        box.style.marginTop = "20px";
-        document.getElementById("gameControls").appendChild(box);
+function loadQuestion() {
+    let q = questions[qIndex];
+    let ansBox = document.getElementById("answers") || document.createElement("div");
+    if (!ansBox.id) {
+        ansBox.id = "answers";
+        ansBox.style.marginTop = "20px";
+        gameArea.appendChild(ansBox);
     }
-    
-    box.innerHTML="";
+    ansBox.innerHTML = "";
 
-    setTimeout(()=>{
-        let yes=document.createElement("button");
-        yes.textContent="YES";
-        yes.onclick=()=>answer(q[1]);
+    typing(q[0], gameStatus, 30, () => {
+        setTimeout(() => {
+            let yes = document.createElement("button");
+            yes.textContent = "YES";
+            yes.onclick = () => answer(q[1]);
 
-        let no=document.createElement("button");
-        no.textContent="NO";
-        no.onclick=()=>answer(q[2]);
+            let no = document.createElement("button");
+            no.textContent = "NO";
+            no.onclick = () => answer(q[2]);
 
-        box.appendChild(yes);
-        box.appendChild(no);
-    },2000);
+            ansBox.appendChild(yes);
+            ansBox.appendChild(no);
+        }, 500);
+    });
 }
 
-function answer(text){
-    let box=document.getElementById("answers");
-    box.innerHTML="";
-    typing(text,document.getElementById("gameStatus"));
-
-    setTimeout(()=>{
-        qIndex++;
-
-        if(qIndex>=8){
-            // All questions done, start the game!
-            startGame();
-        }
-        else{
-            if(qIndex==2){
-                document.body.style.animation="flash .2s";
-                setTimeout(() => {
-                    document.body.style.animation = "";
-                }, 200);
+function answer(text) {
+    let ansBox = document.getElementById("answers");
+    ansBox.innerHTML = "";
+    typing(text, gameStatus, 30, () => {
+        setTimeout(() => {
+            qIndex++;
+            if (qIndex >= 8) {
+                // All questions done, start the game
+                startGame();
+            } else {
+                if (qIndex === 2) {
+                    document.body.style.animation = "flash .2s";
+                    setTimeout(() => document.body.style.animation = "", 200);
+                }
+                loadQuestion();
             }
-            loadQuestion();
-        }
-    },2000);
+        }, 2000);
+    });
 }
 
-function startGame(){
-    gameStarted = true;
-    gameRound = 0;
+// GAME START
+function startGame() {
+    gamePhase = true;
+    let ansBox = document.getElementById("answers");
+    if (ansBox) ansBox.innerHTML = "";
     
-    // Clear the question buttons
-    let box = document.getElementById("answers");
-    if(box) box.innerHTML = "";
+    let gameRound = 0;
+    const trollMessages = ["Loser.", "Really ?", "U can't", "Just stop", "HahA"];
+    const tryPickMessages = ["Try picks ✋ Paper.", "Try picks ✌ Scissors.", "Try picks ✊ Paper.", "Try picks ✋ Paper.", "Try chooses."];
     
+    // Rigged map: whatever you pick, Try picks the winner
+    const tryWins = { "rock": "paper", "paper": "scissors", "scissors": "rock" };
+
     gameStatus.textContent = "Round 1: Can you beat me?";
     gameResult.textContent = "";
     gameMessage.textContent = "";
-    
-    // Ensure controls are visible
     gameControls.style.display = "block";
     rpsButtons.forEach(btn => btn.disabled = false);
-}
 
-
-// --- ROCK PAPER SCISSORS TRAP LOGIC ---
-// The Rigged Logic: Try always wins
-const tryWins = {
-    "rock": "paper",
-    "paper": "scissors",
-    "scissors": "rock"
-};
-
-const trollMessages = [
-    "Loser.",
-    "Really ?",
-    "U can't",
-    "Just stop",
-    "HahA"
-];
-
-const tryPickMessages = [
-    "Try picks ✋ Paper.",
-    "Try picks ✌ Scissors.",
-    "Try picks ✊ Paper.",
-    "Try picks ✋ Paper.",
-    "Try chooses."
-];
-
-function playRound(playerChoice, tryChoice) {
-    // Show result with emojis
-    let pIcon = playerChoice === "rock" ? "✊" : (playerChoice === "paper" ? "✋" : "✌");
-    let tIcon = tryChoice === "rock" ? "✊" : (tryChoice === "paper" ? "✋" : "✌");
-    
-    gameResult.textContent = `You: ${pIcon} | Try: ${tIcon}`;
-    gameMessage.textContent = trollMessages[gameRound];
-    gameMessage.className = "game-msg red-text";
-    
-    // Disable buttons
-    rpsButtons.forEach(btn => btn.disabled = true);
-    gameControls.style.pointerEvents = "none";
-
-    gameRound++;
-
-    setTimeout(() => {
-        if (gameRound < 5) {
-            gameResult.textContent = "";
-            gameMessage.textContent = "";
-            gameStatus.textContent = `Round ${gameRound + 1}`;
+    rpsButtons.forEach(btn => {
+        btn.onclick = function() {
+            const playerChoice = this.getAttribute("data-choice");
+            const tryChoice = tryWins[playerChoice];
             
-            // Show what Try picked for flavor
-            gameMessage.textContent = tryPickMessages[gameRound];
+            // Show result
+            let pIcon = playerChoice === "rock" ? "✊" : (playerChoice === "paper" ? "✋" : "✌");
+            let tIcon = tryChoice === "rock" ? "✊" : (tryChoice === "paper" ? "✋" : "✌");
             
+            gameResult.textContent = `You: ${pIcon} | Try: ${tIcon}`;
+            gameMessage.textContent = trollMessages[gameRound];
+            gameMessage.className = "game-msg red-text";
+            
+            // Disable buttons
+            rpsButtons.forEach(b => b.disabled = true);
+            gameControls.style.pointerEvents = "none";
+
+            gameRound++;
+
             setTimeout(() => {
-                gameMessage.textContent = "";
-                // Re-enable for next round
-                gameControls.style.pointerEvents = "auto";
-                rpsButtons.forEach(btn => {
-                    btn.disabled = false;
-                    btn.style.opacity = "1";
-                });
-            }, 1200);
-            
-        } else {
-            // Round 5 is the end
-            gameStatus.textContent = "Game Complete.";
-            gameStatus.className = "game-text red-text";
-            
-            setTimeout(() => {
-                // Buttons disappear
-                gameControls.style.display = "none";
-                
-                // Silence and wait
-                bg.pause();
-                bg.currentTime = 0;
-                
-                gameMessage.textContent = "";
-                
-                // Wait 4 seconds in silence
-                setTimeout(() => {
-                    triggerHorrorSequence();
-                }, 4000);
-                
+                if (gameRound < 5) {
+                    gameResult.textContent = "";
+                    gameMessage.textContent = "";
+                    gameStatus.textContent = `Round ${gameRound + 1}`;
+                    gameMessage.textContent = tryPickMessages[gameRound];
+                    
+                    setTimeout(() => {
+                        gameMessage.textContent = "";
+                        gameControls.style.pointerEvents = "auto";
+                        rpsButtons.forEach(b => {
+                            b.disabled = false;
+                            b.style.opacity = "1";
+                        });
+                    }, 1200);
+                } else {
+                    // Game Over
+                    gameStatus.textContent = "Game Complete.";
+                    gameStatus.className = "game-text red-text";
+                    
+                    setTimeout(() => {
+                        gameControls.style.display = "none";
+                        bg.pause();
+                        bg.currentTime = 0;
+                        gameMessage.textContent = "";
+                        
+                        setTimeout(() => {
+                            triggerHorrorSequence();
+                        }, 4000);
+                    }, 1500);
+                }
             }, 1500);
-        }
-    }, 1500);
+        };
+    });
 }
 
 function triggerHorrorSequence() {
-    // Fade to black
     document.body.style.opacity = "0";
-    
     setTimeout(() => {
-        // Hide all screens
         document.querySelectorAll(".screen").forEach(s => s.style.display = "none");
-        
-        // Show video
         const video = document.getElementById("horrorVideo");
         video.style.display = "block";
         video.play().catch(e => console.log("Video play failed:", e));
     }, 2000);
 }
 
-rpsButtons.forEach(btn => {
-    btn.onclick = function() {
-        const playerChoice = this.getAttribute("data-choice");
-        const tryChoice = tryWins[playerChoice];
-        
-        playRound(playerChoice, tryChoice);
-    };
-});
-
-// Start the first question immediately when entering p4
-if(document.getElementById("p4").classList.contains("active")) {
-    loadQuestion();
-}
-
-</script>
-
-</body>
-</html>
+</script
