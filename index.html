@@ -14,7 +14,7 @@ html,body{
     color:#fff;
     font-family:monospace;
     overflow:hidden;
-    transition: opacity 2s ease; /* Smooth fade to black */
+    transition: opacity 2s ease;
 }
 
 .screen{
@@ -86,6 +86,11 @@ button:hover {
     background: #333;
 }
 
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 /* Game specific styles */
 .game-text {
     font-size: 18px;
@@ -94,18 +99,22 @@ button:hover {
 }
 
 .game-result {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: bold;
     margin: 20px 0;
     min-height: 40px;
+    color: #fff;
 }
 
-.game-btn-row {
-    margin-top: 20px;
+.game-msg {
+    font-size: 16px;
+    color: #ff4444;
+    min-height: 25px;
+    font-weight: bold;
 }
 
 .red-text {
-    color: #ff0000;
+    color: #ff0000 !important;
 }
 
 /* Animation for the flash effect */
@@ -159,20 +168,20 @@ Try Top Right.
 </div>
 
 
-<!-- THE GAME SCREEN -->
+<!-- THE GAME SCREEN (Replaces p4) -->
 <div id="p4" class="screen">
 <div class="back">← Back</div>
 <div class="center">
-    <div id="gameStatus" class="game-text">Can you beat me?</div>
+    <div id="gameStatus" class="game-text"></div>
     <div id="gameResult" class="game-result"></div>
     
-    <div id="gameControls" class="game-btn-row">
+    <div id="gameControls">
         <button class="rps-btn" data-choice="rock">✊ Rock</button>
         <button class="rps-btn" data-choice="paper">✋ Paper</button>
         <button class="rps-btn" data-choice="scissors">✌ Scissors</button>
     </div>
     
-    <div id="gameMessage" style="margin-top:15px; font-size:12px; color:#666;"></div>
+    <div id="gameMessage" class="game-msg"></div>
 </div>
 </div>
 
@@ -288,73 +297,229 @@ bl.onclick=()=>{
 };
 
 
-// --- ROCK PAPER SCISSORS TRAP LOGIC (p4) ---
+// --- OBSERVER / TRY BUTTON LOGIC (p4) ---
+// This runs first, then leads into the game
+let qIndex=0;
+let gameStarted=false;
+let gameRound=0;
+
+const questions=[
+[
+"Do you remember entering this place?",
+"Then you remember something I don't.",
+"Good. Some things are better forgotten."
+],
+
+[
+"A small light appears in the darkness.\nYou cannot see its source.\nWould you look closer?",
+"You moved toward it.\nMost people do.",
+"You looked away.\nBut it was still there."
+],
+
+[
+"A file appears.\n\nName:\nDO NOT OPEN\n\nWould you open it?",
+"You opened the thing you were warned about.\nThe first mark has appeared.",
+"You left it closed.\nFor now."
+],
+
+[
+"Someone writes:\n\n'I have been waiting.'\n\nWould you reply?",
+"You answered.\nSomething heard you.\nSomething closer.",
+"You stayed silent.\nSomething noticed."
+],
+
+[
+"The website freezes.\n\n'Leave before the last question.'\n\nWould you continue?",
+"You chose to stay.\nThe screen is changing.",
+"You tried to leave.\nBut you already started."
+],
+
+[
+"You see an old picture.\n\nYou don't remember taking it.\n\nWould you look closer?",
+"You searched for an answer.\nThe answer was already looking at you.",
+"You avoided the picture.\nThe picture remained."
+],
+
+[
+"Are you sure you want to know what is hidden here?",
+"Curiosity brought you this far.\nThere is no going back now.",
+"Fear tried to stop you.\nBut the test continued."
+],
+
+[
+"The test is complete.\n\nOPEN\n\nBehind this button is something that was never meant to be found.",
+"",
+""
+]
+];
+
+const typingTimerTimer = document.getElementById("try") ? document.getElementById("try") : null;
+
+// We will replace the old "Try" button logic with this new combined flow
+// Find the button in p4 (we'll create it dynamically or reuse if it exists)
+// Since we removed the button in the HTML for p4, let's add it dynamically or use the first click
+
 const gameStatus = document.getElementById("gameStatus");
 const gameResult = document.getElementById("gameResult");
 const gameControls = document.getElementById("gameControls");
 const gameMessage = document.getElementById("gameMessage");
 const rpsButtons = document.querySelectorAll(".rps-btn");
 
-let round = 0;
-let gameActive = false;
+let typingTimer;
 
-// The Rigged Logic: Site always wins
-const siteWins = {
+function typing(text,element,speed=45,done){
+    clearInterval(typingTimer);
+    element.textContent="";
+    let i=0;
+    typingTimer=setInterval(()=>{
+        if(i>=text.length){
+            clearInterval(typingTimer);
+            if(done) done();
+            return;
+        }
+        element.textContent+=text.charAt(i);
+        i++;
+    },speed);
+}
+
+// --- START GAME LOGIC (Replaces the old try button) ---
+// We'll add a "Start" button or just make the first click start it
+// Let's add a "Try" button dynamically if it doesn't exist, or just use the first click on the screen
+// Actually, let's just make the first click on the game screen start the questions
+
+gameStatus.textContent = "Initializing...\n\nDo not answer quickly.\n\nYour first reaction is the real answer.";
+
+function loadQuestion(){
+    let q=questions[qIndex];
+    typing(q[0],document.getElementById("gameStatus"));
+
+    let box=document.getElementById("answers") || document.createElement("div");
+    
+    // Create answer buttons container if it doesn't exist
+    if(!box.id) {
+        box.id = "answers";
+        box.style.marginTop = "20px";
+        document.getElementById("gameControls").appendChild(box);
+    }
+    
+    box.innerHTML="";
+
+    setTimeout(()=>{
+        let yes=document.createElement("button");
+        yes.textContent="YES";
+        yes.onclick=()=>answer(q[1]);
+
+        let no=document.createElement("button");
+        no.textContent="NO";
+        no.onclick=()=>answer(q[2]);
+
+        box.appendChild(yes);
+        box.appendChild(no);
+    },2000);
+}
+
+function answer(text){
+    let box=document.getElementById("answers");
+    box.innerHTML="";
+    typing(text,document.getElementById("gameStatus"));
+
+    setTimeout(()=>{
+        qIndex++;
+
+        if(qIndex>=8){
+            // All questions done, start the game!
+            startGame();
+        }
+        else{
+            if(qIndex==2){
+                document.body.style.animation="flash .2s";
+                setTimeout(() => {
+                    document.body.style.animation = "";
+                }, 200);
+            }
+            loadQuestion();
+        }
+    },2000);
+}
+
+function startGame(){
+    gameStarted = true;
+    gameRound = 0;
+    
+    // Clear the question buttons
+    let box = document.getElementById("answers");
+    if(box) box.innerHTML = "";
+    
+    gameStatus.textContent = "Round 1: Can you beat me?";
+    gameResult.textContent = "";
+    gameMessage.textContent = "";
+    
+    // Ensure controls are visible
+    gameControls.style.display = "block";
+    rpsButtons.forEach(btn => btn.disabled = false);
+}
+
+
+// --- ROCK PAPER SCISSORS TRAP LOGIC ---
+// The Rigged Logic: Try always wins
+const tryWins = {
     "rock": "paper",
     "paper": "scissors",
     "scissors": "rock"
 };
 
-const roundMessages = [
-    "Can you beat me?",
-    "Again...",
-    "Haha.",
-    "Final Round"
+const trollMessages = [
+    "Loser.",
+    "Really ?",
+    "U can't",
+    "Just stop",
+    "HahA"
 ];
 
-const sitePickMessages = [
-    "The site picks Paper.",
-    "The site picks Scissors.",
-    "The site picks Paper.",
-    "The site chooses."
+const tryPickMessages = [
+    "Try picks ✋ Paper.",
+    "Try picks ✌ Scissors.",
+    "Try picks ✊ Paper.",
+    "Try picks ✋ Paper.",
+    "Try chooses."
 ];
 
-function resetGameUI() {
-    gameResult.textContent = "";
-    gameMessage.textContent = "";
-    gameControls.style.opacity = "1";
-    gameControls.style.pointerEvents = "auto";
-    rpsButtons.forEach(btn => btn.disabled = false);
-}
-
-function playRound(playerChoice, siteChoice) {
-    gameResult.textContent = `You: ${playerChoice.toUpperCase()} | Site: ${siteChoice.toUpperCase()}`;
-    gameMessage.textContent = "Loser.";
-    gameMessage.className = "game-result red-text";
+function playRound(playerChoice, tryChoice) {
+    // Show result with emojis
+    let pIcon = playerChoice === "rock" ? "✊" : (playerChoice === "paper" ? "✋" : "✌");
+    let tIcon = tryChoice === "rock" ? "✊" : (tryChoice === "paper" ? "✋" : "✌");
     
-    // Disable buttons immediately
+    gameResult.textContent = `You: ${pIcon} | Try: ${tIcon}`;
+    gameMessage.textContent = trollMessages[gameRound];
+    gameMessage.className = "game-msg red-text";
+    
+    // Disable buttons
     rpsButtons.forEach(btn => btn.disabled = true);
     gameControls.style.pointerEvents = "none";
 
-    round++;
+    gameRound++;
 
     setTimeout(() => {
-        if (round < 4) {
+        if (gameRound < 5) {
             gameResult.textContent = "";
             gameMessage.textContent = "";
-            gameStatus.textContent = roundMessages[round];
+            gameStatus.textContent = `Round ${gameRound + 1}`;
             
-            // Subtle "glitch" or pause between rounds
+            // Show what Try picked for flavor
+            gameMessage.textContent = tryPickMessages[gameRound];
+            
             setTimeout(() => {
-                resetGameUI();
-                gameMessage.textContent = sitePickMessages[round]; // Show what site picked next
-                setTimeout(() => {
-                    gameMessage.textContent = "";
-                }, 1000);
-            }, 1000);
+                gameMessage.textContent = "";
+                // Re-enable for next round
+                gameControls.style.pointerEvents = "auto";
+                rpsButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.style.opacity = "1";
+                });
+            }, 1200);
             
         } else {
-            // Round 4 is the end
+            // Round 5 is the end
             gameStatus.textContent = "Game Complete.";
             gameStatus.className = "game-text red-text";
             
@@ -395,23 +560,17 @@ function triggerHorrorSequence() {
 
 rpsButtons.forEach(btn => {
     btn.onclick = function() {
-        if (!gameActive) {
-            gameActive = true;
-            round = 0;
-            gameStatus.textContent = roundMessages[round];
-        }
-        
         const playerChoice = this.getAttribute("data-choice");
-        const siteChoice = siteWins[playerChoice];
+        const tryChoice = tryWins[playerChoice];
         
-        playRound(playerChoice, siteChoice);
+        playRound(playerChoice, tryChoice);
     };
 });
 
-// Fallback for the old "Try" button behavior if needed, 
-// but now the "Try" button in p4 is replaced by the game itself.
-// We just need to ensure p4 loads correctly.
-// The "Back" button in p4 still works to return to main.
+// Start the first question immediately when entering p4
+if(document.getElementById("p4").classList.contains("active")) {
+    loadQuestion();
+}
 
 </script>
 
