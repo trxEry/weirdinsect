@@ -14,6 +14,7 @@ html,body{
     color:#fff;
     font-family:monospace;
     overflow:hidden;
+    transition: opacity 2s ease; /* Smooth fade to black */
 }
 
 .screen{
@@ -85,6 +86,28 @@ button:hover {
     background: #333;
 }
 
+/* Game specific styles */
+.game-text {
+    font-size: 18px;
+    margin-bottom: 20px;
+    min-height: 60px;
+}
+
+.game-result {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 20px 0;
+    min-height: 40px;
+}
+
+.game-btn-row {
+    margin-top: 20px;
+}
+
+.red-text {
+    color: #ff0000;
+}
+
 /* Animation for the flash effect */
 @keyframes flash {
     0%{opacity:1}
@@ -136,22 +159,20 @@ Try Top Right.
 </div>
 
 
+<!-- THE GAME SCREEN -->
 <div id="p4" class="screen">
 <div class="back">← Back</div>
 <div class="center">
-<button id="try">Try</button>
-<div id="msg"></div>
-<br>
-Try ↖ Top Left
-</div>
-</div>
-
-<!-- NEW SCREENS ADDED HERE -->
-<div id="observer" class="screen">
-<div class="center">
-<div id="question"></div>
-<br>
-<div id="answers"></div>
+    <div id="gameStatus" class="game-text">Can you beat me?</div>
+    <div id="gameResult" class="game-result"></div>
+    
+    <div id="gameControls" class="game-btn-row">
+        <button class="rps-btn" data-choice="rock">✊ Rock</button>
+        <button class="rps-btn" data-choice="paper">✋ Paper</button>
+        <button class="rps-btn" data-choice="scissors">✌ Scissors</button>
+    </div>
+    
+    <div id="gameMessage" style="margin-top:15px; font-size:12px; color:#666;"></div>
 </div>
 </div>
 
@@ -160,7 +181,7 @@ Try ↖ Top Left
 <div class="center" id="crashText"></div>
 </div>
 
-<video id="horrorVideo" style="display:none;width:100%;height:100%" autoplay playsinline>
+<video id="horrorVideo" style="display:none;width:100%;height:100%" autoplay playsinline loop>
 <source src="WEIRDINSECT001.mp4" type="video/mp4">
 </video>
 
@@ -182,7 +203,7 @@ setTimeout(()=>{
 
 
 document.addEventListener("click",()=>{
-    if(bg.paused) bg.play();
+    if(bg.paused) bg.play().catch(e=>console.log(e));
 },{once:true});
 
 
@@ -220,12 +241,10 @@ bl.onclick=()=>{
     let eyes=[];
     let count=0;
 
-
     let spawn=setInterval(()=>{
 
         if(!document.getElementById("p3").classList.contains("active"))
             return;
-
 
         let e=document.createElement("div");
 
@@ -233,8 +252,7 @@ bl.onclick=()=>{
         e.textContent="◉";
         e.style.left=Math.random()*95+"%";
         e.style.top=Math.random()*95+"%";
-        e.style.color = "rgb(255, 255, 255)"; // Start white
-
+        e.style.color = "rgb(255, 255, 255)";
 
         document.getElementById("p3").appendChild(e);
 
@@ -245,10 +263,7 @@ bl.onclick=()=>{
         if(count>=80)
             clearInterval(spawn);
 
-
     },1000);
-
-
 
     setTimeout(()=>{
 
@@ -257,7 +272,6 @@ bl.onclick=()=>{
             let white=eyes.filter(
             e=>e.style.color!=="rgb(122, 0, 0)"
             );
-
 
             for(let i=0;i<2 && white.length;i++){
 
@@ -270,172 +284,134 @@ bl.onclick=()=>{
 
         },700);
 
-
     },5000);
-
 };
 
 
-// --- OBSERVER / TRY BUTTON LOGIC (p4) ---
-let qIndex=0;
+// --- ROCK PAPER SCISSORS TRAP LOGIC (p4) ---
+const gameStatus = document.getElementById("gameStatus");
+const gameResult = document.getElementById("gameResult");
+const gameControls = document.getElementById("gameControls");
+const gameMessage = document.getElementById("gameMessage");
+const rpsButtons = document.querySelectorAll(".rps-btn");
 
-const questions=[
-[
-"Do you remember entering this place?",
-"Then you remember something I don't.",
-"Good. Some things are better forgotten."
-],
+let round = 0;
+let gameActive = false;
 
-[
-"A small light appears in the darkness.\nYou cannot see its source.\nWould you look closer?",
-"You moved toward it.\nMost people do.",
-"You looked away.\nBut it was still there."
-],
+// The Rigged Logic: Site always wins
+const siteWins = {
+    "rock": "paper",
+    "paper": "scissors",
+    "scissors": "rock"
+};
 
-[
-"A file appears.\n\nName:\nDO NOT OPEN\n\nWould you open it?",
-"You opened the thing you were warned about.\nThe first mark has appeared.",
-"You left it closed.\nFor now."
-],
-
-[
-"Someone writes:\n\n'I have been waiting.'\n\nWould you reply?",
-"You answered.\nSomething heard you.\nSomething closer.",
-"You stayed silent.\nSomething noticed."
-],
-
-[
-"The website freezes.\n\n'Leave before the last question.'\n\nWould you continue?",
-"You chose to stay.\nThe screen is changing.",
-"You tried to leave.\nBut you already started."
-],
-
-[
-"You see an old picture.\n\nYou don't remember taking it.\n\nWould you look closer?",
-"You searched for an answer.\nThe answer was already looking at you.",
-"You avoided the picture.\nThe picture remained."
-],
-
-[
-"Are you sure you want to know what is hidden here?",
-"Curiosity brought you this far.\nThere is no going back now.",
-"Fear tried to stop you.\nBut the test continued."
-],
-
-[
-"The test is complete.\n\nOPEN\n\nBehind this button is something that was never meant to be found.",
-"",
-""
-]
+const roundMessages = [
+    "Can you beat me?",
+    "Again...",
+    "Haha.",
+    "Final Round"
 ];
 
+const sitePickMessages = [
+    "The site picks Paper.",
+    "The site picks Scissors.",
+    "The site picks Paper.",
+    "The site chooses."
+];
 
-let typingTimer;
-
-function typing(text,element,speed=45,done){
-
-clearInterval(typingTimer);
-element.textContent="";
-let i=0;
-
-typingTimer=setInterval(()=>{
-
-if(i>=text.length){
-clearInterval(typingTimer);
-if(done) done();
-return;
+function resetGameUI() {
+    gameResult.textContent = "";
+    gameMessage.textContent = "";
+    gameControls.style.opacity = "1";
+    gameControls.style.pointerEvents = "auto";
+    rpsButtons.forEach(btn => btn.disabled = false);
 }
 
-element.textContent+=text.charAt(i);
-i++;
-
-},speed);
-
-}
-
-document.getElementById("try").onclick=()=>{
-    show("observer");
-    qIndex=0;
+function playRound(playerChoice, siteChoice) {
+    gameResult.textContent = `You: ${playerChoice.toUpperCase()} | Site: ${siteChoice.toUpperCase()}`;
+    gameMessage.textContent = "Loser.";
+    gameMessage.className = "game-result red-text";
     
-    typing(
-    "Initializing...\n\nDo not answer quickly.\n\nYour first reaction is the real answer.",
-    document.getElementById("question"),
-    45,
-    ()=>setTimeout(loadQuestion,1200)
-    );
-};
+    // Disable buttons immediately
+    rpsButtons.forEach(btn => btn.disabled = true);
+    gameControls.style.pointerEvents = "none";
 
-function loadQuestion(){
-    let q=questions[qIndex];
-    typing(q[0],document.getElementById("question"));
+    round++;
 
-    let box=document.getElementById("answers");
-    box.innerHTML="";
-
-    setTimeout(()=>{
-        let yes=document.createElement("button");
-        yes.textContent="YES";
-        yes.onclick=()=>answer(q[1]);
-
-        let no=document.createElement("button");
-        no.textContent="NO";
-        no.onclick=()=>answer(q[2]);
-
-        box.appendChild(yes);
-        box.appendChild(no);
-    },2000);
-}
-
-function answer(text){
-    let box=document.getElementById("answers");
-    box.innerHTML="";
-    typing(text,document.getElementById("question"));
-
-    setTimeout(()=>{
-        qIndex++;
-
-        if(qIndex>=8){
-            finalCrash();
-        }
-        else{
-            if(qIndex==2){
-                document.body.style.animation="flash .2s";
-                // Remove animation after it plays so it can be triggered again if needed later
+    setTimeout(() => {
+        if (round < 4) {
+            gameResult.textContent = "";
+            gameMessage.textContent = "";
+            gameStatus.textContent = roundMessages[round];
+            
+            // Subtle "glitch" or pause between rounds
+            setTimeout(() => {
+                resetGameUI();
+                gameMessage.textContent = sitePickMessages[round]; // Show what site picked next
                 setTimeout(() => {
-                    document.body.style.animation = "";
-                }, 200);
-            }
-            loadQuestion();
+                    gameMessage.textContent = "";
+                }, 1000);
+            }, 1000);
+            
+        } else {
+            // Round 4 is the end
+            gameStatus.textContent = "Game Complete.";
+            gameStatus.className = "game-text red-text";
+            
+            setTimeout(() => {
+                // Buttons disappear
+                gameControls.style.display = "none";
+                
+                // Silence and wait
+                bg.pause();
+                bg.currentTime = 0;
+                
+                gameMessage.textContent = "";
+                
+                // Wait 4 seconds in silence
+                setTimeout(() => {
+                    triggerHorrorSequence();
+                }, 4000);
+                
+            }, 1500);
         }
-    },2000);
+    }, 1500);
 }
 
-function finalCrash(){
-    show("crash");
-    let c=document.getElementById("crashText");
-
-    c.textContent="[ Try? ]";
-
-    setTimeout(()=>{
-        c.textContent="[ HHHHHHHHHHHH ]";
-        document.body.style.background="#400";
-    },300);
-
-    setTimeout(()=>{
-        c.textContent="[ TryAgain... ]";
-    },600);
-
-    setTimeout(()=>{
-        document.body.style.background="#000";
-        c.textContent="";
-    },1500);
-
-    setTimeout(()=>{
-        let video = document.getElementById("horrorVideo");
-        video.style.display="block";
-        video.play().catch(e => console.log("Video play failed (user interaction needed):", e));
-    },4500);
+function triggerHorrorSequence() {
+    // Fade to black
+    document.body.style.opacity = "0";
+    
+    setTimeout(() => {
+        // Hide all screens
+        document.querySelectorAll(".screen").forEach(s => s.style.display = "none");
+        
+        // Show video
+        const video = document.getElementById("horrorVideo");
+        video.style.display = "block";
+        video.play().catch(e => console.log("Video play failed:", e));
+    }, 2000);
 }
+
+rpsButtons.forEach(btn => {
+    btn.onclick = function() {
+        if (!gameActive) {
+            gameActive = true;
+            round = 0;
+            gameStatus.textContent = roundMessages[round];
+        }
+        
+        const playerChoice = this.getAttribute("data-choice");
+        const siteChoice = siteWins[playerChoice];
+        
+        playRound(playerChoice, siteChoice);
+    };
+});
+
+// Fallback for the old "Try" button behavior if needed, 
+// but now the "Try" button in p4 is replaced by the game itself.
+// We just need to ensure p4 loads correctly.
+// The "Back" button in p4 still works to return to main.
 
 </script>
 
