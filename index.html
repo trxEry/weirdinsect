@@ -86,11 +86,13 @@ button{
 
 button:hover {
     background: #333;
+    border-color: #aaa;
 }
 
 button:disabled {
-    opacity: 0.5;
+    opacity: 0.3;
     cursor: not-allowed;
+    border-color: #333;
 }
 
 /* Game specific styles */
@@ -98,6 +100,7 @@ button:disabled {
     font-size: 18px;
     margin-bottom: 20px;
     min-height: 60px;
+    line-height: 1.4;
 }
 
 .game-result {
@@ -109,10 +112,11 @@ button:disabled {
 }
 
 .game-msg {
-    font-size: 16px;
-    color: #ff4444;
-    min-height: 25px;
+    font-size: 18px;
+    color: #ff0000;
+    min-height: 30px;
     font-weight: bold;
+    margin-top: 10px;
 }
 
 .red-text {
@@ -174,11 +178,13 @@ button:disabled {
         <div id="gameArea" style="display:none; margin-top:20px;">
             <div id="gameStatus" class="game-text"></div>
             <div id="gameResult" class="game-result"></div>
-            <div id="gameControls">
+            
+            <div id="gameControls" style="display:none; margin-top:20px;">
                 <button class="rps-btn" data-choice="rock">✊ Rock</button>
                 <button class="rps-btn" data-choice="paper">✋ Paper</button>
                 <button class="rps-btn" data-choice="scissors">✌ Scissors</button>
             </div>
+            
             <div id="gameMessage" class="game-msg"></div>
         </div>
     </div>
@@ -201,11 +207,13 @@ const numbers = document.getElementById("numbers");
 const doors = document.querySelectorAll(".door");
 const bg = document.getElementById("bg");
 
+// Initial fade in
 setTimeout(()=>{
     numbers.style.opacity = 1;
     doors.forEach(d => d.style.opacity = 1);
 }, 3000);
 
+// Audio start on first click
 document.addEventListener("click", () => {
     if (bg.paused) bg.play().catch(e => console.log("Audio blocked:", e));
 }, {once: true});
@@ -374,10 +382,20 @@ function startGame() {
     gameResult.textContent = "";
     gameMessage.textContent = "";
     gameControls.style.display = "block";
-    rpsButtons.forEach(btn => btn.disabled = false);
+    
+    // Re-enable buttons
+    rpsButtons.forEach(btn => {
+        btn.disabled = false;
+        btn.style.opacity = "1";
+    });
 
+    // Attach click events dynamically to ensure they work
     rpsButtons.forEach(btn => {
         btn.onclick = function() {
+            // Prevent double clicks
+            if (this.classList.contains('clicked')) return;
+            this.classList.add('clicked');
+            
             const playerChoice = this.getAttribute("data-choice");
             const tryChoice = tryWins[playerChoice];
             
@@ -390,7 +408,10 @@ function startGame() {
             gameMessage.className = "game-msg red-text";
             
             // Disable buttons
-            rpsButtons.forEach(b => b.disabled = true);
+            rpsButtons.forEach(b => {
+                b.disabled = true;
+                b.classList.add('clicked');
+            });
             gameControls.style.pointerEvents = "none";
 
             gameRound++;
@@ -407,6 +428,7 @@ function startGame() {
                         gameControls.style.pointerEvents = "auto";
                         rpsButtons.forEach(b => {
                             b.disabled = false;
+                            b.classList.remove('clicked');
                             b.style.opacity = "1";
                         });
                     }, 1200);
@@ -440,5 +462,6 @@ function triggerHorrorSequence() {
         video.play().catch(e => console.log("Video play failed:", e));
     }, 2000);
 }
-
-</script
+</script>
+</body>
+</html>
